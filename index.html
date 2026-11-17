@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B&B - Brew and Brunch | C Scheme, Jaipur</title>
+    <!-- Google Fonts: Montserrat / Anton-style Display, Playfair Display & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emeraldCafe: {
+                            950: '#102C20',
+                            900: '#163B2C',
+                            800: '#20513D',
+                            700: '#2A664E',
+                        },
+                        mustard: {
+                            300: '#FAD96B',
+                            400: '#F4C430',
+                            500: '#E5B21A',
+                            600: '#C9960C',
+                        },
+                        cream: {
+                            50: '#FCF9F3',
+                            100: '#F7F1E5',
+                            200: '#EDE2CE',
+                            300: '#DFCEB2',
+                        },
+                        roast: {
+                            950: '#17110E',
+                            900: '#231A15',
+                            800: '#352720',
+                            600: '#635147',
+                        }
+                    },
+                    fontFamily: {
+                        display: ['"Montserrat"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Subtle Organic Botanical / Chalk Line Texture on Emerald Cover */
+        .emerald-cover-bg {
+            background-color: #20513D;
+            background-image:
+                radial-gradient(circle at 20% 25%, rgba(42, 102, 78, 0.55) 0%, transparent 50%),
+                radial-gradient(circle at 82% 70%, rgba(16, 44, 32, 0.65) 0%, transparent 55%),
+                linear-gradient(135deg, rgba(255,255,255,0.03) 25%, transparent 25%),
+                linear-gradient(225deg, rgba(255,255,255,0.03) 25%, transparent 25%);
+            background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+        }
+        /* Infinite Marquee Animation for Mustard Banner */
+        @keyframes marqueeScroll {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            display: flex;
+            width: max-content;
+            animation: marqueeScroll 28s linear infinite;
+        }
+        .animate-marquee:hover {
+            animation-play-state: paused;
+        }
+
+        /* 3D Perspective Customer Favorites Carousel (Matching Reference Screenshots) */
+        .fav-stage {
+            position: relative;
+            height: 500px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            user-select: none;
+        }
+        .fav-slide {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+                        opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+                        filter 0.65s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 340px;
+            will-change: transform, opacity;
+        }
+        .fav-slide-img-wrap {
+            width: 295px;
+            height: 295px;
+            border-radius: 9999px;
+            overflow: hidden;
+            box-shadow: 0 26px 45px -14px rgba(23, 17, 14, 0.28);
+            border: 6px solid #FCF9F3;
+            background-color: #163B2C;
+            transition: box-shadow 0.5s ease, border-color 0.5s ease;
+        }
+        .fav-slide[data-offset="0"] .fav-slide-img-wrap {
+            box-shadow: 0 32px 60px -12px rgba(23, 17, 14, 0.36);
+            border-color: #FFFFFF;
+        }
+        .fav-slide-meta {
+            margin-top: 16px;
+            max-width: 320px;
+            transition: opacity 0.45s ease;
+        }
+        /* Center Active Item (offset 0) */
+        .fav-slide[data-offset="0"] {
+            transform: translate(-50%, -50%) translateX(0px) scale(1);
+            z-index: 30;
+            opacity: 1;
+            cursor: default;
+        }
+        /* Immediate Left & Right Items (offset -1 / +1) */
+        .fav-slide[data-offset="-1"] {
+            transform: translate(-50%, -47%) translateX(-340px) scale(0.66);
+            z-index: 20;
+            opacity: 0.94;
+            cursor: pointer;
+        }
+        .fav-slide[data-offset="1"] {
+            transform: translate(-50%, -47%) translateX(340px) scale(0.66);
+            z-index: 20;
+            opacity: 0.94;
+            cursor: pointer;
+        }
+        /* Far Left & Right Outer Items (offset -2 / +2) */
+        .fav-slide[data-offset="-2"] {
+            transform: translate(-50%, -44%) translateX(-545px) scale(0.42);
+            z-index: 10;
+            opacity: 0.85;
+            cursor: pointer;
+        }
+        .fav-slide[data-offset="2"] {
+            transform: translate(-50%, -44%) translateX(545px) scale(0.42);
+            z-index: 10;
+            opacity: 0.85;
+            cursor: pointer;
+        }
+        /* Offscreen Hidden Items */
+        .fav-slide[data-offset="hidden-left"] {
+            transform: translate(-50%, -44%) translateX(-720px) scale(0.25);
+            z-index: 1;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .fav-slide[data-offset="hidden-right"] {
+            transform: translate(-50%, -44%) translateX(720px) scale(0.25);
+            z-index: 1;
+            opacity: 0;
+            pointer-events: none;
+        }
+        /* Responsive Adjustments for Tablet & Mobile */
+        @media (max-width: 1024px) {
+            .fav-slide[data-offset="-1"] { transform: translate(-50%, -47%) translateX(-255px) scale(0.62); }
+            .fav-slide[data-offset="1"]  { transform: translate(-50%, -47%) translateX(255px) scale(0.62); }
+            .fav-slide[data-offset="-2"] { transform: translate(-50%, -44%) translateX(-410px) scale(0.38); }
+            .fav-slide[data-offset="2"]  { transform: translate(-50%, -44%) translateX(410px) scale(0.38); }
+        }
+        @media (max-width: 640px) {
+            .fav-stage { height: 470px; }
+            .fav-slide { width: 290px; }
+            .fav-slide-img-wrap { width: 235px; height: 235px; }
+            .fav-slide[data-offset="-1"] { transform: translate(-50%, -47%) translateX(-185px) scale(0.55); opacity: 0.75; }
+            .fav-slide[data-offset="1"]  { transform: translate(-50%, -47%) translateX(185px) scale(0.55); opacity: 0.75; }
+            .fav-slide[data-offset="-2"],
+            .fav-slide[data-offset="2"]  { opacity: 0; pointer-events: none; }
+        }
+    </style>
+</head>
+<body class="bg-cream-100 text-roast-900 font-sans antialiased selection:bg-mustard-400 selection:text-emeraldCafe-950 overflow-x-hidden">
+
+<!-- =========================================================================
+ 1. TOP NAVIGATION BAR
+========================================================================== -->
+<header id="main-navbar" class="sticky top-0 z-40 bg-emeraldCafe-800/95 backdrop-blur-md border-b border-white/10 px-4 sm:px-8 py-3.5 transition-all">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <!-- Left: Circular B&B Emblem + Brand Name -->
+        <button onclick="switchPageView('home')" class="flex items-center gap-3 text-left group cursor-pointer">
+            <div class="w-11 h-11 rounded-full bg-white text-emeraldCafe-900 flex flex-col items-center justify-center shadow-md border-2 border-mustard-400 shrink-0 group-hover:scale-105 transition-transform">
+                <span class="font-display font-black text-xs tracking-tighter leading-none">B&amp;B</span>
+                <span class="text-[6px] font-bold uppercase tracking-widest text-emeraldCafe-800 mt-0.5">CAFE</span>
+            </div>
+            <div>
+                <span class="font-display font-extrabold text-lg sm:text-xl text-white tracking-tight block leading-none">B&amp;B Cafe</span>
+                <span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-mustard-400 block mt-1">Brew &amp; Brunch • Jaipur</span>
+            </div>
+        </button>
+        <!-- Center Navigation Links -->
+        <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold text-white/90">
+            <button onclick="switchPageView('home')" id="nav-btn-home" class="text-mustard-400 hover:text-mustard-400 transition-colors cursor-pointer">Home</button>
+            <button onclick="switchPageView('menu')" id="nav-btn-menu" class="hover:text-mustard-400 transition-colors flex items-center gap-1.5 cursor-pointer">
+                <span>Full Menu</span>
+                <span class="px-2 py-0.5 rounded-full bg-mustard-400 text-emeraldCafe-950 text-[10px] font-extrabold">ORDER</span>
+            </button>
+            <a href="#favorites-section" onclick="switchPageView('home')" class="hover:text-mustard-400 transition-colors">Favorites</a>
+            <a href="#about-section" onclick="switchPageView('home')" class="hover:text-mustard-400 transition-colors">About Us</a>
+            <a href="#gallery-section" onclick="switchPageView('home')" class="hover:text-mustard-400 transition-colors">Photos</a>
+            <a href="#reviews-section" onclick="switchPageView('home')" class="hover:text-mustard-400 transition-colors">Reviews (4.5★)</a>
+            <a href="#visit-section" onclick="switchPageView('home')" class="hover:text-mustard-400 transition-colors">Contact</a>
+        </nav>
+        <!-- Right Actions: Cart Bag, Locate Me -->
+        <div class="flex items-center gap-2.5 sm:gap-3">
+            <!-- Cart / WhatsApp Order Bag -->
+            <button onclick="openCartDrawer()" class="relative p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-colors cursor-pointer" aria-label="Open Cart">
+                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                <span id="header-cart-count" class="hidden absolute -top-1 -right-1 w-5 h-5 rounded-full bg-mustard-400 text-emeraldCafe-950 text-[11px] font-extrabold flex items-center justify-center shadow">0</span>
+            </button>
+            <!-- "Locate Me" Pill Button -->
+            <a href="#visit-section" onclick="switchPageView('home')" class="hidden md:inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-emeraldCafe-950 hover:bg-black text-white text-xs font-bold tracking-wide shadow-md transition-all">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-mustard-400"></i>
+                Locate Me
+            </a>
+            <!-- Mobile Drawer Button -->
+            <button onclick="toggleMobileNav()" class="lg:hidden p-2.5 rounded-full bg-white/10 text-white" aria-label="Menu">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- Mobile Navigation Drawer -->
+<div id="mobile-nav-drawer" class="fixed inset-0 z-50 hidden">
+    <div onclick="toggleMobileNav()" class="fixed inset-0 bg-black/75 backdrop-blur-xs"></div>
+    <div class="fixed top-0 right-0 bottom-0 w-72 bg-emeraldCafe-950 text-white p-6 flex flex-col justify-between z-10 border-l border-white/15">
+        <div>
+            <div class="flex items-center justify-between pb-5 border-b border-white/15">
+                <span class="font-display font-extrabold text-lg">B&amp;B - Brew &amp; Brunch</span>
+                <button onclick="toggleMobileNav()" class="p-2 rounded-full bg-white/10">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="flex flex-col space-y-3.5 mt-6 text-sm font-semibold">
+                <button onclick="switchPageView('home'); toggleMobileNav();" class="text-left py-2 hover:text-mustard-400">Home Cover</button>
+                <button onclick="switchPageView('menu'); toggleMobileNav();" class="text-left py-2 text-mustard-400 font-bold">Explore Full Menu (Drinks &amp; Food)</button>
+                <a href="#favorites-section" onclick="switchPageView('home'); toggleMobileNav();" class="py-2 hover:text-mustard-400">Customer Favorites</a>
+                <a href="#about-section" onclick="switchPageView('home'); toggleMobileNav();" class="py-2 hover:text-mustard-400">About B&amp;B Jaipur</a>
+                <a href="#gallery-section" onclick="switchPageView('home'); toggleMobileNav();" class="py-2 hover:text-mustard-400">Cafe Photos</a>
+                <a href="#reviews-section" onclick="switchPageView('home'); toggleMobileNav();" class="py-2 hover:text-mustard-400">Guest Reviews (4.5★)</a>
+                <a href="#visit-section" onclick="switchPageView('home'); toggleMobileNav();" class="py-2 hover:text-mustard-400">Reserve a Table &amp; Directions</a>
+            </div>
+        </div>
+        <button onclick="openReserveModal(); toggleMobileNav();" class="w-full py-3.5 rounded-full bg-mustard-400 text-emeraldCafe-950 font-extrabold text-sm">
+            Reserve a Table
+        </button>
+    </div>
+</div>
+
+<!-- =========================================================================
+ PAGE VIEW A: MAIN LANDING PAGE (#home-view)
+========================================================================== -->
+<main id="home-view">
+    <!-- =====================================================================
+         COVER HERO SECTION ("WHERE FLAVOR MEETS AMBIENCE")
+    ====================================================================== -->
+    <section class="emerald-cover-bg relative pt-10 sm:pt-14 pb-0 overflow-hidden text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8">
+            <div class="text-center max-w-5xl mx-auto">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emeraldCafe-950/60 border border-mustard-400/35 text-mustard-300 text-xs font-bold tracking-wider uppercase mb-5">
+                    <span>4.5 ★ (1,321 Reviews)</span>
+                    <span>•</span>
+                    <span>C Scheme, Jaipur</span>
+                    <span>•</span>
+                    <span>₹400–1,400</span>
+                </div>
+                <h1 class="font-display font-black text-4xl sm:text-6xl md:text-7xl lg:text-[5.25rem] uppercase tracking-tight leading-[0.98] text-white">
+                    WHERE <span class="relative inline-block">
+                        <span class="relative z-10">FLAVOR MEETS</span>
+                        <span class="absolute left-0 right-0 bottom-1 sm:bottom-2 h-3 sm:h-4 bg-mustard-400 -z-0 rounded-xs"></span>
+                    </span>
+                    <br>
+                    AMBIENCE
+                </h1>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mt-8 lg:mt-6">
+                <!-- Left Column: B&B Intro + CTA -->
+                <div class="lg:col-span-4 space-y-5 text-center lg:text-left order-2 lg:order-1 pb-6 lg:pb-16">
+                    <h2 class="font-display font-extrabold text-lg sm:text-xl text-white">
+                        B&amp;B - Brew and Brunch —
+                    </h2>
+                    <p class="text-white/90 text-sm sm:text-base leading-relaxed max-w-md mx-auto lg:mx-0">
+                        Indulge in a world of flavors from artisanal specialty coffee and cold brews to Lebanese platters, sourdough open toasts, pastas, and freshly baked croissants in the heart of C Scheme, Jaipur.
+                    </p>
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-1">
+                        <button onclick="switchPageView('menu')" class="px-7 py-3.5 rounded-full bg-mustard-400 hover:bg-mustard-300 text-emeraldCafe-950 font-extrabold text-sm tracking-wide shadow-lg hover:scale-105 transition-all cursor-pointer">
+                            Explore Our Menu
+                        </button>
+                        <button onclick="openReserveModal()" class="px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold text-sm transition-all cursor-pointer">
+                            Reserve a Table
+                        </button>
+                    </div>
+                </div>
+                <!-- Center Column: Cover Drink -->
+                <div class="lg:col-span-4 flex justify-center items-end order-1 lg:order-2 relative">
+                    <div class="w-72 h-72 sm:w-80 sm:h-80 rounded-full bg-mustard-400/20 blur-3xl absolute bottom-6"></div>
+                    <div class="relative z-10 w-64 sm:w-72 md:w-80 rounded-t-[2.5rem] overflow-hidden shadow-2xl border-4 border-b-0 border-white/15 bg-emeraldCafe-950">
+                        <img
+                            src="images/bb-cafe-cover-image.jpg"
+                            onerror="this.onerror=null; this.src=createFallbackSvg('B&B Cafe Cover Image', 'images/bb-cafe-cover-image.jpg', '#163B2C', '#F4C430');"
+                            alt="Signature Chocolate Oreo Frappe & Specialty Brew at B&B Cafe Jaipur"
+                            class="w-full h-[340px] sm:h-[390px] object-cover object-center"
+                        >
+                        <div class="bg-emeraldCafe-950/90 backdrop-blur-xs px-4 py-2 text-center border-t border-white/10">
+                            <span class="text-[11px] font-bold uppercase tracking-widest text-mustard-400">Signature Oreo Frappe &amp; Craft Brews</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right Column: 3 Highlights -->
+                <div class="lg:col-span-4 space-y-5 order-3 pb-10 lg:pb-16">
+                    <div class="flex items-start gap-3.5 bg-emeraldCafe-950/40 lg:bg-transparent p-4 lg:p-0 rounded-2xl border border-white/10 lg:border-0">
+                        <span class="w-6 h-6 rounded-full bg-mustard-400 text-emeraldCafe-950 flex items-center justify-center shrink-0 mt-0.5 shadow">
+                            <i data-lucide="coffee" class="w-3.5 h-3.5"></i>
+                        </span>
+                        <p class="text-sm text-white/95 leading-relaxed">
+                            <strong class="text-mustard-300 font-bold">Premium Food:</strong> Delight in a menu crafted with the finest ingredients—from Lebanese platters to manual pour-overs.
+                        </p>
+                    </div>
+                    <div class="flex items-start gap-3.5 bg-emeraldCafe-950/40 lg:bg-transparent p-4 lg:p-0 rounded-2xl border border-white/10 lg:border-0">
+                        <span class="w-6 h-6 rounded-full bg-mustard-400 text-emeraldCafe-950 flex items-center justify-center shrink-0 mt-0.5 shadow">
+                            <i data-lucide="flame" class="w-3.5 h-3.5"></i>
+                        </span>
+                        <p class="text-sm text-white/95 leading-relaxed">
+                            <strong class="text-mustard-300 font-bold">Nice Ambience:</strong> Cozy fireplace seating, warm aesthetic corners, and calm vibes open till 12 AM.
+                        </p>
+                    </div>
+                    <div class="flex items-start gap-3.5 bg-emeraldCafe-950/40 lg:bg-transparent p-4 lg:p-0 rounded-2xl border border-white/10 lg:border-0">
+                        <span class="w-6 h-6 rounded-full bg-mustard-400 text-emeraldCafe-950 flex items-center justify-center shrink-0 mt-0.5 shadow">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                        </span>
+                        <p class="text-sm text-white/95 leading-relaxed">
+                            <strong class="text-mustard-300 font-bold">Affordable Price:</strong> Savor specialty coffee starting at ₹99 and hearty brunch plates within ₹400–1,400.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Signature Bottom Mustard-Yellow Marquee Bar -->
+        <div class="bg-mustard-400 text-emeraldCafe-950 py-3.5 border-t-2 border-emeraldCafe-950/15 overflow-hidden">
+            <div class="animate-marquee flex items-center gap-8 font-display font-black text-sm sm:text-base uppercase tracking-wider">
+                <span>★ B&amp;B - BREW AND BRUNCH JAIPUR</span>
+                <span>•</span>
+                <span>O-12, ASHOK MARG, C SCHEME, JAIPUR</span>
+                <span>•</span>
+                <span>OPEN DAILY • CLOSES 12 AM</span>
+                <span>•</span>
+                <span>ALL YOU CAN EAT • HAPPY-HOUR FOOD • FIREPLACE</span>
+                <span>•</span>
+                <span>4.5 ★ RATED BY 1,321+ GUESTS</span>
+                <span>•</span>
+                <span>ORDER ONLINE DIRECTLY ON WHATSAPP</span>
+                <span>•</span>
+                <span>★ B&amp;B - BREW AND BRUNCH JAIPUR</span>
+                <span>•</span>
+                <span>O-12, ASHOK MARG, C SCHEME, JAIPUR</span>
+                <span>•</span>
+                <span>OPEN DAILY • CLOSES 12 AM</span>
+                <span>•</span>
+                <span>ALL YOU CAN EAT • HAPPY-HOUR FOOD • FIREPLACE</span>
+                <span>•</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         QUICK ACTION BAR
+    ====================================================================== -->
+    <section class="bg-cream-50 border-b border-cream-300 py-5 px-4 sm:px-8">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-2.5">
+                <button onclick="openReserveModal()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-emeraldCafe-800 hover:bg-emeraldCafe-900 text-white text-xs font-bold shadow-xs transition-all cursor-pointer">
+                    <i data-lucide="calendar-check" class="w-4 h-4 text-mustard-400"></i>
+                    Reserve a Table
+                </button>
+                <button onclick="switchPageView('menu')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-mustard-400 hover:bg-mustard-500 text-emeraldCafe-950 text-xs font-extrabold shadow-xs transition-all cursor-pointer">
+                    <i data-lucide="utensils" class="w-4 h-4"></i>
+                    Order Online / Menu
+                </button>
+                <a href="https://maps.google.com/?q=O-12,+Ashok+Marg,+Patrakar+Colony,+C+Scheme,+Jaipur,+Rajasthan+302001" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-cream-200 hover:bg-cream-300 text-roast-900 text-xs font-bold transition-all">
+                    <i data-lucide="navigation" class="w-4 h-4 text-emeraldCafe-800"></i>
+                    Directions
+                </a>
+                <a href="tel:+917340650765" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-cream-200 hover:bg-cream-300 text-roast-900 text-xs font-bold transition-all">
+                    <i data-lucide="phone" class="w-4 h-4 text-emeraldCafe-800"></i>
+                    Call 073406 50765
+                </a>
+                <button onclick="shareCafeLink()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-cream-200 hover:bg-cream-300 text-roast-900 text-xs font-bold transition-all cursor-pointer">
+                    <i data-lucide="share-2" class="w-4 h-4 text-emeraldCafe-800"></i>
+                    Share
+                </button>
+            </div>
+            <div class="flex items-center gap-3 text-xs font-semibold text-roast-600">
+                <span class="inline-flex items-center gap-1.5 text-emeraldCafe-800 font-bold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-600 animate-ping"></span>
+                    Open Now • Closes 12 AM
+                </span>
+                <span>|</span>
+                <span>People typically spend 45 min to 2 hr here</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         NEW FEATURE: 3D CUSTOMER FAVORITES SHOWCASE CAROUSEL (REFERENCE DESIGN)
+    ====================================================================== -->
+    <section id="favorites-section" class="py-20 bg-cream-50 border-b border-cream-300 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8 text-center">
+            <h2 class="font-display font-black text-4xl sm:text-5xl md:text-6xl text-roast-900 tracking-tight">
+                Customer Favorites
+            </h2>
+            <p class="text-roast-600 text-sm sm:text-base mt-2.5 font-medium">
+                From Signature Coffees to Delicious Bites – Don’t Miss These!
+            </p>
+        </div>
+
+        <!-- 3D Perspective Stage -->
+        <div id="favorites-carousel-stage" class="fav-stage mt-4">
+            <!-- Populated dynamically via JS -->
+        </div>
+
+        <!-- Circular Prev / Next Navigation Arrows (Matching Reference Screenshot) -->
+        <div class="flex flex-col items-center justify-center gap-5 mt-1 px-4">
+            <div class="flex items-center justify-center gap-4">
+                <button onclick="stepFavoritesCarousel(-1)" aria-label="Previous Favorite" class="w-11 h-11 rounded-full border border-roast-900/35 hover:border-emeraldCafe-900 hover:bg-emeraldCafe-900 text-roast-900 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-xs">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                </button>
+                <button onclick="stepFavoritesCarousel(1)" aria-label="Next Favorite" class="w-11 h-11 rounded-full border border-roast-900/35 hover:border-emeraldCafe-900 hover:bg-emeraldCafe-900 text-roast-900 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-xs">
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <button onclick="switchPageView('menu')" class="px-6 py-2.5 rounded-full bg-mustard-400 hover:bg-mustard-500 text-emeraldCafe-950 font-extrabold text-xs uppercase tracking-wider shadow-xs transition-all cursor-pointer">
+                Explore Complete 90+ Item Menu →
+            </button>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         ABOUT B&B - BREW AND BRUNCH JAIPUR
+    ====================================================================== -->
+    <section id="about-section" class="py-20 px-4 sm:px-8 max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-6 relative">
+                <div class="rounded-3xl overflow-hidden shadow-xl border-2 border-cream-300 bg-emeraldCafe-950">
+                    <img
+                        src="images/bb-cafe-image-1.jpg"
+                        onerror="this.onerror=null; this.src=createFallbackSvg('B&B Cafe Image 1', 'images/bb-cafe-image-1.jpg', '#20513D', '#FCF9F3');"
+                        alt="Cozy Interior & Fireplace at B&B - Brew and Brunch Jaipur"
+                        class="w-full h-[420px] object-cover"
+                    >
+                </div>
+                <div class="hidden sm:block w-52 h-52 rounded-3xl overflow-hidden border-4 border-cream-100 shadow-2xl absolute -bottom-6 -right-4 bg-emeraldCafe-900">
+                    <img
+                        src="images/bb-cafe-image-2.jpg"
+                        onerror="this.onerror=null; this.src=createFallbackSvg('B&B Cafe Image 2', 'images/bb-cafe-image-2.jpg', '#163B2C', '#F4C430');"
+                        alt="Specialty Espresso & Latte Art Bar"
+                        class="w-full h-full object-cover"
+                    >
+                </div>
+            </div>
+            <div class="lg:col-span-6 space-y-5">
+                <span class="text-xs uppercase tracking-[0.25em] text-emeraldCafe-800 font-extrabold">OUR STORY • C SCHEME, JAIPUR</span>
+                <h2 class="font-serif text-4xl sm:text-5xl font-bold text-roast-950 leading-tight">
+                    Jaipur’s Cozy Sanctuary for Specialty Coffee &amp; All-Day Brunch
+                </h2>
+                <p class="text-roast-600 text-base leading-relaxed">
+                    Nestled at <strong>O-12, Ashok Marg, Patrakar Colony, C Scheme</strong>, <strong>B&amp;B - Brew and Brunch</strong> brings together precision manual coffee brewing, warm fireplace corners, and an expansive global brunch kitchen.
+                </p>
+                <p class="text-roast-600 text-base leading-relaxed">
+                    From our 24–30 hour steeped Signature Cold Brews and Vietnamese Drips to hearty Lebanese Platters, Matcha Creamy Croissants, and wood-fired Barbeque Chicken Pizza, every plate is crafted for unhurried conversations.
+                </p>
+                <div class="flex flex-wrap gap-2.5 pt-2">
+                    <span class="px-3.5 py-1.5 rounded-full bg-emeraldCafe-800/10 text-emeraldCafe-900 text-xs font-bold">🔥 Cozy Fireplace</span>
+                    <span class="px-3.5 py-1.5 rounded-full bg-emeraldCafe-800/10 text-emeraldCafe-900 text-xs font-bold">🍽️ All You Can Eat</span>
+                    <span class="px-3.5 py-1.5 rounded-full bg-emeraldCafe-800/10 text-emeraldCafe-900 text-xs font-bold">🥂 Happy-Hour Food</span>
+                    <span class="px-3.5 py-1.5 rounded-full bg-emeraldCafe-800/10 text-emeraldCafe-900 text-xs font-bold">💻 Work-Friendly Calm Vibe</span>
+                    <span class="px-3.5 py-1.5 rounded-full bg-emeraldCafe-800/10 text-emeraldCafe-900 text-xs font-bold">🌱 Vegan Milk Options</span>
+                </div>
+                <div class="pt-4 flex flex-wrap gap-3">
+                    <button onclick="switchPageView('menu')" class="px-7 py-3.5 rounded-full bg-emeraldCafe-800 hover:bg-emeraldCafe-950 text-white font-bold text-sm shadow-md transition-all cursor-pointer">
+                        Explore Full Menu →
+                    </button>
+                    <button onclick="openReserveModal()" class="px-6 py-3.5 rounded-full border-2 border-emeraldCafe-800 text-emeraldCafe-900 hover:bg-emeraldCafe-800 hover:text-white font-bold text-sm transition-all cursor-pointer">
+                        Reserve a Table
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         CAFE PHOTOS GALLERY
+    ====================================================================== -->
+    <section id="gallery-section" class="py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-cream-300">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <span class="text-xs uppercase tracking-[0.25em] text-emeraldCafe-800 font-extrabold">VISUAL TOUR</span>
+            <h2 class="font-serif text-4xl sm:text-5xl font-bold text-roast-950 mt-2">
+                Inside B&amp;B - Brew and Brunch
+            </h2>
+            <p class="text-roast-600 text-sm mt-2">
+                A glimpse into our C Scheme cafe space, freshly baked pastries, and signature brunch table.
+            </p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 auto-rows-[230px]">
+            <div class="sm:col-span-2 sm:row-span-2 relative rounded-3xl overflow-hidden border border-cream-300 shadow-md group">
+                <img src="images/bb-cafe-image-1.jpg" onerror="this.onerror=null; this.src=createFallbackSvg('B&B Cafe Image 1', 'images/bb-cafe-image-1.jpg', '#20513D', '#F4C430');" alt="B&B Cafe Image 1" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent"></div>
+                <div class="absolute bottom-5 left-5 text-white">
+                    <span class="text-[11px] uppercase tracking-widest text-mustard-400 font-bold">C Scheme Flagship</span>
+                    <h3 class="font-serif text-2xl font-bold">Warm Fireplace &amp; Cozy Lounge</h3>
+                </div>
+            </div>
+            <div class="relative rounded-3xl overflow-hidden border border-cream-300 shadow-md group">
+                <img src="images/bb-cafe-image-2.jpg" onerror="this.onerror=null; this.src=createFallbackSvg('B&B Cafe Image 2', 'images/bb-cafe-image-2.jpg', '#163B2C', '#FCF9F3');" alt="B&B Cafe Image 2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                <p class="absolute bottom-4 left-4 text-white font-serif font-bold text-lg">Specialty Coffee Bar</p>
+            </div>
+            <div class="relative rounded-3xl overflow-hidden border border-cream-300 shadow-md group">
+                <img src="images/bb-cafe-image-3.jpg" onerror="this.onerror=null; this.src=createFallbackSvg('B&B Cafe Image 3', 'images/bb-cafe-image-3.jpg', '#352720', '#F4C430');" alt="B&B Cafe Image 3" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                <p class="absolute bottom-4 left-4 text-white font-serif font-bold text-lg">All-Day Brunch Spread</p>
+            </div>
+            <div class="relative rounded-3xl overflow-hidden border border-cream-300 shadow-md group">
+                <img src="images/bb-cafe-image-4.jpg" onerror="this.onerror=null; this.src=createFallbackSvg('B&B Cafe Image 4', 'images/bb-cafe-image-4.jpg', '#20513D', '#FCF9F3');" alt="B&B Cafe Image 4" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                <p class="absolute bottom-4 left-4 text-white font-serif font-bold text-lg">Freshly Baked Croissants</p>
+            </div>
+            <div class="relative rounded-3xl overflow-hidden border border-cream-300 shadow-md group">
+                <img src="images/bb-cafe-image-5.jpg" onerror="this.onerror=null; this.src=createFallbackSvg('B&B Cafe Image 5', 'images/bb-cafe-image-5.jpg', '#102C20', '#F4C430');" alt="B&B Cafe Image 5" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                <p class="absolute bottom-4 left-4 text-white font-serif font-bold text-lg">Evening Patio Seating</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         GOOGLE REVIEW SUMMARY
+    ====================================================================== -->
+    <section id="reviews-section" class="py-20 px-4 sm:px-8 bg-emeraldCafe-950 text-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center mb-14">
+                <div class="lg:col-span-5 bg-emeraldCafe-900/90 border border-white/10 rounded-3xl p-8">
+                    <span class="text-xs uppercase tracking-widest text-mustard-400 font-bold">GOOGLE REVIEW SUMMARY</span>
+                    <div class="flex items-end gap-4 mt-3">
+                        <span class="font-display font-black text-6xl text-white">4.5</span>
+                        <div class="pb-1.5">
+                            <div class="flex text-mustard-400 gap-1">
+                                <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                                <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                                <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                                <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                                <i data-lucide="star-half" class="w-5 h-5 fill-current"></i>
+                            </div>
+                            <p class="text-xs text-white/75 mt-1">Based on <strong>1,321 verified Google reviews</strong></p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 mt-6 text-xs">
+                        <div class="flex items-center gap-3"><span>5★</span><div class="flex-1 h-2 rounded-full bg-white/10 overflow-hidden"><div class="h-full bg-mustard-400 w-[76%]"></div></div></div>
+                        <div class="flex items-center gap-3"><span>4★</span><div class="flex-1 h-2 rounded-full bg-white/10 overflow-hidden"><div class="h-full bg-mustard-400 w-[16%]"></div></div></div>
+                        <div class="flex items-center gap-3"><span>3★</span><div class="flex-1 h-2 rounded-full bg-white/10 overflow-hidden"><div class="h-full bg-mustard-400 w-[5%]"></div></div></div>
+                        <div class="flex items-center gap-3"><span>2★</span><div class="flex-1 h-2 rounded-full bg-white/10 overflow-hidden"><div class="h-full bg-mustard-400 w-[2%]"></div></div></div>
+                        <div class="flex items-center gap-3"><span>1★</span><div class="flex-1 h-2 rounded-full bg-white/10 overflow-hidden"><div class="h-full bg-mustard-400 w-[1%]"></div></div></div>
+                    </div>
+                </div>
+                <div class="lg:col-span-7 space-y-5">
+                    <h2 class="font-serif text-3xl sm:text-4xl font-bold text-white">
+                        “People say this cafe offers delicious food, amazing coffee, smoothie bowls, and a wide variety of breakfast &amp; brunch options.”
+                    </h2>
+                    <p class="text-white/80 text-sm sm:text-base leading-relaxed">
+                        Guests highlight the cozy, calm, and aesthetically pleasing ambiance—making B&amp;B - Brew and Brunch a favorite C Scheme spot to relax or work, complete with the aroma of freshly baked food and attentive hospitality.
+                    </p>
+                    <div class="flex flex-wrap gap-2 pt-1 text-xs font-semibold">
+                        <span class="px-3.5 py-1.5 rounded-full bg-white/10 text-mustard-300">“Freshly baked food aroma”</span>
+                        <span class="px-3.5 py-1.5 rounded-full bg-white/10 text-mustard-300">“Friendly owner &amp; staff”</span>
+                        <span class="px-3.5 py-1.5 rounded-full bg-white/10 text-mustard-300">“Best Cappuccino &amp; Lebanese Platter”</span>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="p-7 rounded-3xl bg-emeraldCafe-900/70 border border-white/10">
+                    <div class="flex text-mustard-400 gap-1 mb-4">★★★★★</div>
+                    <p class="font-serif italic text-lg text-white/95 mb-5">
+                        “Their Lebanese Platter, Cappuccino, and Matcha Creamy Croissant are pure perfection. Warm fireplace lighting makes C Scheme evenings feel magical.”
+                    </p>
+                    <p class="text-sm font-bold text-mustard-400">Aarav Sharma • Local Guide</p>
+                </div>
+                <div class="p-7 rounded-3xl bg-emeraldCafe-900/70 border border-mustard-400/35">
+                    <div class="flex text-mustard-400 gap-1 mb-4">★★★★★</div>
+                    <p class="font-serif italic text-lg text-white/95 mb-5">
+                        “Best place in Jaipur to work or catch up over brunch! Pesto Scrambled Eggs, Berry Blast Bowl, and V-60 Pour Over never disappoint.”
+                    </p>
+                    <p class="text-sm font-bold text-mustard-400">Meera Rathore • Verified Diner</p>
+                </div>
+                <div class="p-7 rounded-3xl bg-emeraldCafe-900/70 border border-white/10">
+                    <div class="flex text-mustard-400 gap-1 mb-4">★★★★★</div>
+                    <p class="font-serif italic text-lg text-white/95 mb-5">
+                        “Love that they stay open till 12 AM! Super welcoming staff, amazing Irish Coffee and Crispy Paneer Wrap, and effortless online ordering.”
+                    </p>
+                    <p class="text-sm font-bold text-mustard-400">Rohan Kapoor • Verified Diner</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         VISIT US / LOCATION & RESERVATION SECTION
+    ====================================================================== -->
+    <section id="visit-section" class="py-20 px-4 sm:px-8 max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            <div class="lg:col-span-5 space-y-6">
+                <span class="text-xs uppercase tracking-[0.25em] text-emeraldCafe-800 font-extrabold">VISIT US IN JAIPUR</span>
+                <h2 class="font-serif text-4xl font-bold text-roast-950">
+                    B&amp;B - Brew and Brunch
+                </h2>
+                <div class="p-6 rounded-3xl bg-cream-50 border border-cream-300 shadow-sm space-y-5">
+                    <div class="flex items-start gap-3.5">
+                        <i data-lucide="map-pin" class="w-5 h-5 text-emeraldCafe-800 shrink-0 mt-1"></i>
+                        <div>
+                            <h3 class="font-bold text-roast-950 text-sm">Address</h3>
+                            <p class="text-sm text-roast-600 mt-0.5">
+                                O-12, Ashok Marg, Patrakar Colony, C Scheme, Ashok Nagar, Jaipur, Rajasthan 302001
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3.5">
+                        <i data-lucide="clock" class="w-5 h-5 text-emeraldCafe-800 shrink-0 mt-1"></i>
+                        <div>
+                            <h3 class="font-bold text-roast-950 text-sm">Hours &amp; Dining</h3>
+                            <p class="text-sm text-emeraldCafe-800 font-bold mt-0.5">Open Daily • Closes 12:00 AM</p>
+                            <p class="text-xs text-roast-600 mt-0.5">Price per person: ₹400–1,400 • Usually up to 15 mins wait at peak hours</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3.5">
+                        <i data-lucide="phone-call" class="w-5 h-5 text-emeraldCafe-800 shrink-0 mt-1"></i>
+                        <div>
+                            <h3 class="font-bold text-roast-950 text-sm">Phone &amp; WhatsApp Orders</h3>
+                            <p class="text-sm text-roast-600 mt-0.5">+91 73406 50765 (073406 50765)</p>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-cream-300">
+                        <div class="flex items-center justify-between text-xs font-bold text-roast-900 mb-2">
+                            <span>Popular Times (C Scheme)</span>
+                            <span class="text-emeraldCafe-800">45 min – 2 hr avg stay</span>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1.5 items-end h-14 pt-2">
+                            <div class="bg-emeraldCafe-800/30 rounded-t h-[45%]" title="Mon"></div>
+                            <div class="bg-emeraldCafe-800/40 rounded-t h-[55%]" title="Tue"></div>
+                            <div class="bg-emeraldCafe-800/50 rounded-t h-[65%]" title="Wed"></div>
+                            <div class="bg-emeraldCafe-800/60 rounded-t h-[70%]" title="Thu"></div>
+                            <div class="bg-emeraldCafe-800/80 rounded-t h-[85%]" title="Fri"></div>
+                            <div class="bg-mustard-400 rounded-t h-[100%]" title="Sat"></div>
+                            <div class="bg-mustard-400 rounded-t h-[95%]" title="Sun"></div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1.5 text-[10px] text-center font-bold text-roast-600 mt-1">
+                            <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-7">
+                <div class="p-8 sm:p-10 rounded-3xl bg-emeraldCafe-900 text-white shadow-xl border border-white/10">
+                    <span class="text-xs uppercase tracking-[0.25em] text-mustard-400 font-bold">RESERVATIONS</span>
+                    <h3 class="font-serif text-3xl sm:text-4xl font-bold mt-2 mb-2">Reserve Your Table at B&amp;B</h3>
+                    <p class="text-sm text-white/75 mb-6">
+                        Book your cozy fireplace booth or garden patio table in C Scheme, Jaipur.
+                    </p>
+                    <form onsubmit="submitTableReservation(event)" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-white/80 mb-1.5">Guest Name</label>
+                                <input type="text" id="res-name" required placeholder="Your Full Name" class="w-full px-4 py-3 rounded-xl bg-emeraldCafe-950 border border-white/15 text-white text-sm focus:outline-none focus:border-mustard-400">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-white/80 mb-1.5">Phone / WhatsApp</label>
+                                <input type="tel" id="res-phone" required placeholder="+91 98290 XXXXX" class="w-full px-4 py-3 rounded-xl bg-emeraldCafe-950 border border-white/15 text-white text-sm focus:outline-none focus:border-mustard-400">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-white/80 mb-1.5">Date</label>
+                                <input type="date" id="res-date" required class="w-full px-4 py-3 rounded-xl bg-emeraldCafe-950 border border-white/15 text-white text-sm focus:outline-none focus:border-mustard-400">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-white/80 mb-1.5">Time (Till 12 AM)</label>
+                                <select id="res-time" class="w-full px-4 py-3 rounded-xl bg-emeraldCafe-950 border border-white/15 text-white text-sm focus:outline-none focus:border-mustard-400">
+                                    <option value="10:00 AM">10:00 AM (Morning Brew)</option>
+                                    <option value="12:30 PM" selected>12:30 PM (Brunch)</option>
+                                    <option value="4:30 PM">4:30 PM (Evening Coffee)</option>
+                                    <option value="8:00 PM">8:00 PM (Dinner &amp; Fireplace)</option>
+                                    <option value="10:30 PM">10:30 PM (Late Night)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-white/80 mb-1.5">Party Size</label>
+                                <select id="res-guests" class="w-full px-4 py-3 rounded-xl bg-emeraldCafe-950 border border-white/15 text-white text-sm focus:outline-none focus:border-mustard-400">
+                                    <option value="2 Guests" selected>2 Guests</option>
+                                    <option value="4 Guests">4 Guests</option>
+                                    <option value="6 Guests">6 Guests</option>
+                                    <option value="8+ Guests">8+ Guests</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full py-4 rounded-full bg-mustard-400 hover:bg-mustard-300 text-emeraldCafe-950 font-extrabold text-sm tracking-wide shadow-lg transition-all cursor-pointer">
+                            Confirm Table Reservation on WhatsApp
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- =========================================================================
+ PAGE VIEW B: SEPARATE DEDICATED MENU PAGE (#menu-view)
+========================================================================== -->
+<section id="menu-view" class="hidden min-h-screen bg-cream-100 pb-24">
+    <div class="bg-emeraldCafe-900 text-white py-12 px-4 sm:px-8 border-b-4 border-mustard-400">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+                <button onclick="switchPageView('home')" class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-mustard-400 hover:text-white mb-3 cursor-pointer">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Back to B&amp;B Cover Page
+                </button>
+                <h1 class="font-display font-black text-3xl sm:text-5xl uppercase tracking-tight">
+                    B&amp;B - Brew &amp; Brunch Menu
+                </h1>
+                <p class="text-white/80 text-sm mt-2">
+                    Add Drinks &amp; Food to your cart, enter your name, and send your order directly to our kitchen on WhatsApp.
+                </p>
+            </div>
+            <div class="shrink-0">
+                <button onclick="openCartDrawer()" class="px-6 py-3.5 rounded-2xl bg-mustard-400 hover:bg-mustard-300 text-emeraldCafe-950 font-extrabold text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2.5 shadow-lg transition-all cursor-pointer">
+                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                    <span>View Cart (<span id="menu-bar-cart-count">0</span>)</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Top-Level Menu Switcher -->
+    <div class="sticky top-[68px] z-30 bg-cream-50/95 backdrop-blur-md border-b border-cream-300 py-4 px-4 sm:px-8 shadow-xs">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="filterPrimarySection('ALL')" id="sec-btn-ALL" class="sec-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-extrabold bg-emeraldCafe-800 text-white shadow-xs cursor-pointer">
+                    All Items
+                </button>
+                <button onclick="filterPrimarySection('DRINKS')" id="sec-btn-DRINKS" class="sec-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-extrabold bg-cream-200 text-roast-900 hover:bg-mustard-400 cursor-pointer">
+                    ☕ Drinks (Hot &amp; Cold)
+                </button>
+                <button onclick="filterPrimarySection('HOT_DRINKS')" id="sec-btn-HOT_DRINKS" class="sec-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-extrabold bg-cream-200 text-roast-900 hover:bg-mustard-400 cursor-pointer">
+                    🔥 Hot Drinks Only
+                </button>
+                <button onclick="filterPrimarySection('COLD_DRINKS')" id="sec-btn-COLD_DRINKS" class="sec-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-extrabold bg-cream-200 text-roast-900 hover:bg-mustard-400 cursor-pointer">
+                    🧊 Cold Drinks Only
+                </button>
+                <button onclick="filterPrimarySection('FOOD')" id="sec-btn-FOOD" class="sec-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-extrabold bg-cream-200 text-roast-900 hover:bg-mustard-400 cursor-pointer">
+                    🍽️ Food &amp; Brunch
+                </button>
+            </div>
+            <div class="relative w-full lg:w-72">
+                <i data-lucide="search" class="w-4 h-4 text-roast-600 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input type="text" id="menu-search-input" oninput="renderFullMenuPage()" placeholder="Search Cappuccino, Lebanese, Pasta..." class="w-full pl-10 pr-4 py-2 rounded-full bg-white border border-cream-300 text-xs sm:text-sm focus:outline-none focus:border-emeraldCafe-800">
+            </div>
+        </div>
+        <div id="subcategory-pills-bar" class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto pt-3 pb-1 no-scrollbar"></div>
+    </div>
+
+    <div id="menu-sections-wrapper" class="max-w-7xl mx-auto px-4 sm:px-8 pt-10 space-y-16"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 mt-14">
+        <div class="p-6 rounded-3xl bg-emeraldCafe-900 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+                <span class="text-xs uppercase tracking-widest text-mustard-400 font-bold">CUSTOMISATIONS &amp; ADD-ONS</span>
+                <p class="text-sm text-white/90 mt-1">
+                    Vegan Milk Options (Almond / Oats / Soya): <strong>₹99</strong> • Flavours (Vanilla / Caramel / Hazelnut): <strong>₹50</strong>
+                </p>
+            </div>
+            <button onclick="openCartDrawer()" class="px-6 py-3 rounded-full bg-mustard-400 text-emeraldCafe-950 font-extrabold text-xs uppercase tracking-wider shrink-0 cursor-pointer">
+                Proceed to WhatsApp Order
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+ FOOTER
+========================================================================== -->
+<footer class="bg-emeraldCafe-950 text-white/80 py-14 px-4 sm:px-8 border-t border-white/10">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-white/10">
+        <div class="md:col-span-2 space-y-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-white text-emeraldCafe-950 font-display font-black text-xs flex items-center justify-center border-2 border-mustard-400">
+                    B&amp;B
+                </div>
+                <span class="font-display font-extrabold text-xl text-white">B&amp;B - Brew and Brunch</span>
+            </div>
+            <p class="text-sm text-white/70 max-w-md">
+                O-12, Ashok Marg, Patrakar Colony, C Scheme, Ashok Nagar, Jaipur, Rajasthan 302001 • Open Daily till 12:00 AM.
+            </p>
+        </div>
+        <div>
+            <h4 class="text-xs uppercase tracking-widest text-mustard-400 font-bold mb-3">Quick Links</h4>
+            <ul class="space-y-2 text-sm">
+                <li><button onclick="switchPageView('home')" class="hover:text-mustard-400 cursor-pointer">Cover Home</button></li>
+                <li><button onclick="switchPageView('menu')" class="hover:text-mustard-400 cursor-pointer">Full Menu (Drinks &amp; Food)</button></li>
+                <li><button onclick="openReserveModal()" class="hover:text-mustard-400 cursor-pointer">Reserve a Table</button></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="text-xs uppercase tracking-widest text-mustard-400 font-bold mb-3">Order &amp; Contact</h4>
+            <p class="text-sm">WhatsApp / Call: <strong>+91 73406 50765</strong></p>
+            <p class="text-xs text-mustard-300 mt-1">4.5 ★ Rated by 1,321+ Guests in Jaipur</p>
+        </div>
+    </div>
+    <div class="max-w-7xl mx-auto pt-6 flex flex-col sm:flex-row justify-between text-xs text-white/50 gap-2">
+        <p>© 2026 B&amp;B - Brew and Brunch, C Scheme, Jaipur. All rights reserved.</p>
+        <p>Open Daily till 12:00 AM • Direct WhatsApp Ordering</p>
+    </div>
+</footer>
+
+<!-- =========================================================================
+ SLIDE-OVER CART DRAWER -> DIRECT WHATSAPP ORDER
+========================================================================== -->
+<div id="cart-drawer" class="fixed inset-0 z-50 hidden justify-end">
+    <div onclick="closeCartDrawer()" class="fixed inset-0 bg-black/75 backdrop-blur-xs"></div>
+    <div class="relative z-10 w-full max-w-md bg-cream-50 h-full shadow-2xl flex flex-col justify-between p-6">
+        <div class="flex items-center justify-between pb-4 border-b border-cream-300">
+            <div>
+                <span class="text-[11px] uppercase tracking-widest text-emeraldCafe-800 font-extrabold">B&amp;B Jaipur Direct Order</span>
+                <h3 class="font-display font-extrabold text-2xl text-roast-950">Your Order Cart</h3>
+            </div>
+            <button onclick="closeCartDrawer()" class="p-2 rounded-full bg-cream-200 hover:bg-cream-300 text-roast-900 cursor-pointer">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div id="cart-items-list" class="flex-1 overflow-y-auto space-y-3 pr-1 my-4"></div>
+        <div class="pt-4 border-t border-cream-300 space-y-3">
+            <div>
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-roast-700 mb-1">Your Name *</label>
+                <input type="text" id="cart-customer-name" required placeholder="Enter your full name..." class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-cream-300 text-xs font-semibold focus:outline-none focus:border-emeraldCafe-800">
+            </div>
+            <div>
+                <input type="text" id="cart-customer-note" placeholder="Add cooking instructions (e.g., Oat milk, less spicy)..." class="w-full px-3.5 py-2 rounded-xl bg-white border border-cream-300 text-xs focus:outline-none focus:border-emeraldCafe-800">
+            </div>
+            <div class="space-y-1 text-sm">
+                <div class="flex justify-between text-roast-600">
+                    <span>Item Subtotal</span>
+                    <span id="cart-subtotal-val" class="font-bold text-roast-950">₹0</span>
+                </div>
+                <div class="flex justify-between text-roast-600">
+                    <span>GST (5%)</span>
+                    <span id="cart-gst-val" class="font-bold text-roast-950">₹0</span>
+                </div>
+                <div class="flex justify-between text-base font-extrabold text-roast-950 pt-2 border-t border-cream-300">
+                    <span>Grand Total</span>
+                    <span id="cart-grand-total-val">₹0</span>
+                </div>
+            </div>
+            <button onclick="sendOrderToWhatsApp()" class="w-full py-4 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white font-extrabold text-sm shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer">
+                <i data-lucide="message-circle" class="w-5 h-5"></i>
+                <span>Place Order on WhatsApp</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================================
+ QUICK TABLE RESERVATION MODAL
+========================================================================== -->
+<div id="reserve-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div class="relative w-full max-w-md rounded-3xl bg-emeraldCafe-900 text-white border border-white/15 p-7 shadow-2xl">
+        <button onclick="closeReserveModal()" class="absolute top-5 right-5 p-2 rounded-full bg-white/10 hover:bg-white/20 cursor-pointer">
+            <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+        <span class="text-xs uppercase tracking-widest text-mustard-400 font-bold">B&amp;B JAIPUR</span>
+        <h3 class="font-serif text-3xl font-bold mt-1 mb-1">Reserve a Table</h3>
+        <p class="text-xs text-white/75 mb-5">O-12, Ashok Marg, C Scheme • Open till 12 AM</p>
+        <form onsubmit="submitModalReservation(event)" class="space-y-3.5">
+            <input type="text" id="m-res-name" required placeholder="Your Full Name" class="w-full px-4 py-3 rounded-xl bg-emeraldCafe-950 border border-white/15 text-sm text-white">
+            <input type="tel" id="m-res-phone" required placeholder="Phone / WhatsApp Number" class="w-full px-4 py-3 rounded-xl bg-emeraldCafe-950 border border-white/15 text-sm text-white">
+            <div class="grid grid-cols-2 gap-3">
+                <input type="date" id="m-res-date" required class="w-full px-3.5 py-3 rounded-xl bg-emeraldCafe-950 border border-white/15 text-sm text-white">
+                <select id="m-res-time" class="w-full px-3.5 py-3 rounded-xl bg-emeraldCafe-950 border border-white/15 text-sm text-white">
+                    <option value="11:00 AM">11:00 AM</option>
+                    <option value="1:30 PM" selected>1:30 PM</option>
+                    <option value="5:00 PM">5:00 PM</option>
+                    <option value="8:30 PM">8:30 PM</option>
+                    <option value="10:30 PM">10:30 PM</option>
+                </select>
+            </div>
+            <select id="m-res-guests" class="w-full px-4 py-3 rounded-xl bg-emeraldCafe-950 border border-white/15 text-sm text-white">
+                <option value="2 Guests" selected>2 Guests</option>
+                <option value="4 Guests">4 Guests</option>
+                <option value="6 Guests">6 Guests</option>
+                <option value="8+ Guests">8+ Guests</option>
+            </select>
+            <button type="submit" class="w-full py-3.5 rounded-full bg-mustard-400 hover:bg-mustard-300 text-emeraldCafe-950 font-extrabold text-sm shadow-lg cursor-pointer">
+                Book Table via WhatsApp
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Floating Toast Notification -->
+<div id="toast-box" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-emeraldCafe-950 text-white px-5 py-3.5 rounded-full shadow-2xl border border-mustard-400/50 flex items-center gap-2.5 text-xs sm:text-sm font-bold">
+    <i data-lucide="check-circle" class="w-4 h-4 text-mustard-400"></i>
+    <span id="toast-msg">Added to cart</span>
+</div>
+
+<!-- =========================================================================
+ JAVASCRIPT: COMPLETE B&B MENU DATABASE, 3D CAROUSEL & WHATSAPP ENGINE
+========================================================================== -->
+<script>
+const BB_WHATSAPP_NUMBER = "917340650765";
+
+function createFallbackSvg(label, filename, bgHex = "#20513D", accentHex = "#F4C430") {
+    const safeLabel = label.replace(/&/g, "&amp;").slice(0, 28);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="420" viewBox="0 0 600 420">
+        <rect width="600" height="420" fill="${bgHex}"/>
+        <circle cx="300" cy="175" r="78" fill="${accentHex}" fill-opacity="0.16" stroke="${accentHex}" stroke-width="2"/>
+        <text x="300" y="182" font-family="sans-serif" font-size="22" font-weight="800" fill="${accentHex}" text-anchor="middle">B&amp;B</text>
+        <text x="300" y="290" font-family="sans-serif" font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle">${safeLabel}</text>
+        <text x="300" y="322" font-family="monospace" font-size="13" fill="${accentHex}" text-anchor="middle">${filename}</text>
+    </svg>`;
+    return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+}
+
+// =========================================================================
+// COMPLETE B&B - BREW AND BRUNCH MENU ITEMS
+// =========================================================================
+const bbMenuItems = [
+    // ---------------- DRINKS -> HOT DRINKS ----------------
+    { id: "d-hot-1", section: "DRINKS", temp: "HOT", category: "White Coffee (Hot)", name: "Cappuccino", price: 179, desc: "Espresso, steamed milk & velvety microfoam", image: "images/drink-hot-cappuccino.jpg", popular: true },
+    { id: "d-hot-2", section: "DRINKS", temp: "HOT", category: "White Coffee (Hot)", name: "Café Latte (Hot)", price: 179, desc: "Double espresso & silky steamed milk", image: "images/drink-hot-cafe-latte.jpg", popular: false },
+    { id: "d-hot-3", section: "DRINKS", temp: "HOT", category: "White Coffee (Hot)", name: "Matcha Latte (Hot)", price: 219, desc: "Ceremonial matcha powder, steamed milk & foam", image: "images/drink-hot-matcha-latte.jpg", popular: false },
+    { id: "d-hot-4", section: "DRINKS", temp: "HOT", category: "White Coffee (Hot)", name: "Flat White", price: 189, desc: "Rich double espresso & fine microfoam", image: "images/drink-hot-flat-white.jpg", popular: false },
+    { id: "d-hot-5", section: "DRINKS", temp: "HOT", category: "White Coffee (Hot)", name: "Classic Macchiato", price: 199, desc: "Double espresso marked with steamed milk foam", image: "images/drink-hot-classic-macchiato.jpg", popular: false },
+    { id: "d-hot-6", section: "DRINKS", temp: "HOT", category: "White Coffee (Hot)", name: "Café Mocha (Hot)", price: 199, desc: "Espresso, rich chocolate & steamed milk", image: "images/drink-hot-cafe-mocha.jpg", popular: false },
+    { id: "d-hot-7", section: "DRINKS", temp: "HOT", category: "White Coffee (Hot)", name: "Nutellacchino", price: 339, desc: "Signature roasted hazelnut Nutella cappuccino", image: "images/drink-hot-nutellacchino.jpg", popular: false },
+    { id: "d-hot-8", section: "DRINKS", temp: "HOT", category: "White Coffee (Hot)", name: "Biscoffchino", price: 339, desc: "Caramelized Lotus Biscoff spiced cappuccino", image: "images/drink-hot-biscoffchino.jpg", popular: false },
+    { id: "d-hot-9", section: "DRINKS", temp: "HOT", category: "Black Coffee (Hot)", name: "Espresso", price: 99, desc: "Single shot pure specialty Arabica extraction", image: "images/drink-hot-espresso.jpg", popular: false },
+    { id: "d-hot-10", section: "DRINKS", temp: "HOT", category: "Black Coffee (Hot)", name: "Doppio (Double Espresso)", price: 139, desc: "Bold double shot espresso with tiger crema", image: "images/drink-hot-doppio.jpg", popular: false },
+    { id: "d-hot-11", section: "DRINKS", temp: "HOT", category: "Black Coffee (Hot)", name: "Long Black / Americano (Hot)", price: 139, desc: "Double espresso over hot purified water", image: "images/drink-hot-americano.jpg", popular: false },
+    { id: "d-hot-12", section: "DRINKS", temp: "HOT", category: "Black Coffee (Hot)", name: "Special Irish Coffee", price: 199, desc: "Aromatic hot coffee infused with Irish cream notes", image: "images/drink-hot-irish-coffee.jpg", popular: false },
+    { id: "d-hot-13", section: "DRINKS", temp: "HOT", category: "Manual Brews & Teas (Hot)", name: "V-60 Pour Over (Hot)", price: 169, desc: "Hand-poured single-origin filter extraction", image: "images/drink-hot-v60-pourover.jpg", popular: false },
+    { id: "d-hot-14", section: "DRINKS", temp: "HOT", category: "Manual Brews & Teas (Hot)", name: "Aeropress (Hot)", price: 169, desc: "Clean, full-bodied immersion specialty brew", image: "images/drink-hot-aeropress.jpg", popular: false },
+    { id: "d-hot-15", section: "DRINKS", temp: "HOT", category: "Manual Brews & Teas (Hot)", name: "French Press", price: 179, desc: "Classic steeped coarse-grind aromatic roast", image: "images/drink-hot-french-press.jpg", popular: false },
+    { id: "d-hot-16", section: "DRINKS", temp: "HOT", category: "Manual Brews & Teas (Hot)", name: "Chamomile Tea", price: 169, desc: "Soothing whole-flower Egyptian chamomile infusion", image: "images/drink-hot-chamomile-tea.jpg", popular: false },
+
+    // ---------------- DRINKS -> COLD DRINKS ----------------
+    { id: "d-cold-1", section: "DRINKS", temp: "COLD", category: "Iced Coffee & Cold Brews", name: "Iced Café Latte", price: 199, desc: "Chilled espresso poured over cold milk & ice", image: "images/drink-cold-iced-latte.jpg", popular: false },
+    { id: "d-cold-2", section: "DRINKS", temp: "COLD", category: "Iced Coffee & Cold Brews", name: "Iced Matcha Latte", price: 239, desc: "Whisked ceremonial matcha over chilled milk & ice", image: "images/drink-cold-iced-matcha.jpg", popular: false },
+    { id: "d-cold-3", section: "DRINKS", temp: "COLD", category: "Iced Coffee & Cold Brews", name: "Iced Café Mocha", price: 219, desc: "Espresso, dark chocolate & chilled milk over ice", image: "images/drink-cold-iced-mocha.jpg", popular: false },
+    { id: "d-cold-4", section: "DRINKS", temp: "COLD", category: "Iced Coffee & Cold Brews", name: "B&B Special Ice Cube Latte", price: 199, desc: "Frozen espresso ice cubes served with cold milk", image: "images/drink-cold-ice-cube-latte.jpg", popular: false },
+    { id: "d-cold-5", section: "DRINKS", temp: "COLD", category: "Iced Coffee & Cold Brews", name: "Affogato", price: 239, desc: "Hot double espresso drowned over vanilla ice cream", image: "images/drink-cold-affogato.jpg", popular: false },
+    { id: "d-cold-6", section: "DRINKS", temp: "COLD", category: "Iced Coffee & Cold Brews", name: "Iced Americano", price: 149, desc: "Crisp double espresso over ice & chilled water", image: "images/drink-cold-iced-americano.jpg", popular: false },
+    { id: "d-cold-7", section: "DRINKS", temp: "COLD", category: "Iced Coffee & Cold Brews", name: "B&B Ice Cube Coffee", price: 149, desc: "Signature frozen black coffee cubes", image: "images/drink-cold-ice-cube-coffee.jpg", popular: false },
+    { id: "d-cold-8", section: "DRINKS", temp: "COLD", category: "Iced Coffee & Cold Brews", name: "Iced V-60 Pour Over", price: 179, desc: "Flash-chilled single-origin pour-over", image: "images/drink-cold-iced-v60.jpg", popular: false },
+    { id: "d-cold-9", section: "DRINKS", temp: "COLD", category: "Iced Coffee & Cold Brews", name: "Iced Aeropress", price: 179, desc: "Chilled Japanese-style Aeropress brew", image: "images/drink-cold-iced-aeropress.jpg", popular: false },
+    { id: "d-cold-10", section: "DRINKS", temp: "COLD", category: "Iced Coffee & Cold Brews", name: "Signature Cold Brew (24–30 hrs)", price: 199, desc: "Slow-steeped for 24–30 hours for chocolatey smoothness", image: "images/drink-cold-signature-cold-brew.jpg", popular: true },
+    { id: "d-cold-11", section: "DRINKS", temp: "COLD", category: "Iced Coffee & Cold Brews", name: "Vietnamese Drip", price: 209, desc: "Traditional Phin-dripped dark roast over condensed milk", image: "images/drink-cold-vietnamese-drip.jpg", popular: false },
+    { id: "d-cold-12", section: "DRINKS", temp: "COLD", category: "Iced Coffee & Cold Brews", name: "Rum Barrel Cold Brew", price: 229, desc: "Oak barrel-aged aromatic non-alcoholic cold brew", image: "images/drink-cold-rum-barrel-cold-brew.jpg", popular: false },
+    { id: "d-cold-13", section: "DRINKS", temp: "COLD", category: "Iced Coffee & Cold Brews", name: "Mint Lime Cold Brew", price: 229, desc: "Refreshing garden mint & zesty lime cold brew", image: "images/drink-cold-mint-lime-cold-brew.jpg", popular: false },
+    { id: "d-cold-14", section: "DRINKS", temp: "COLD", category: "Iced Coffee & Cold Brews", name: "Orange Cold Brew", price: 229, desc: "Valencia orange citrus infused signature cold brew", image: "images/drink-cold-orange-cold-brew.jpg", popular: false },
+    { id: "d-cold-15", section: "DRINKS", temp: "COLD", category: "Coffee Fusions (Cold)", name: "Espresso Tonic", price: 199, desc: "Double espresso layered over chilled botanical tonic", image: "images/drink-cold-espresso-tonic.jpg", popular: false },
+    { id: "d-cold-16", section: "DRINKS", temp: "COLD", category: "Coffee Fusions (Cold)", name: "Espresso Ale", price: 199, desc: "Crisp ginger ale topped with freshly pulled espresso", image: "images/drink-cold-espresso-ale.jpg", popular: false },
+    { id: "d-cold-17", section: "DRINKS", temp: "COLD", category: "Coffee Fusions (Cold)", name: "Coconut Cold Brew", price: 219, desc: "Tropical tender coconut water & slow cold brew", image: "images/drink-cold-coconut-cold-brew.jpg", popular: false },
+    { id: "d-cold-18", section: "DRINKS", temp: "COLD", category: "Coffee Fusions (Cold)", name: "Coffee Berry Blast", price: 239, desc: "Wild berry compote fused with chilled espresso", image: "images/drink-cold-coffee-berry-blast.jpg", popular: false },
+    { id: "d-cold-19", section: "DRINKS", temp: "COLD", category: "Coffee Fusions (Cold)", name: "Espresso Ale Lemonade", price: 229, desc: "Sparkling ginger lemonade & espresso refresher", image: "images/drink-cold-espresso-ale-lemonade.jpg", popular: false },
+    { id: "d-cold-20", section: "DRINKS", temp: "COLD", category: "Coffee Fusions (Cold)", name: "Espresso Yuzu Tonic", price: 229, desc: "Japanese yuzu citrus tonic & bright espresso", image: "images/drink-cold-espresso-yuzu-tonic.jpg", popular: false },
+    { id: "d-cold-21", section: "DRINKS", temp: "COLD", category: "Coffee Fusions (Cold)", name: "Coffee Punch Espresso", price: 199, desc: "Choice of Cranberry or Orange citrus espresso punch", image: "images/drink-cold-coffee-punch.jpg", popular: false },
+    { id: "d-cold-22", section: "DRINKS", temp: "COLD", category: "Coffee Fusions (Cold)", name: "Pink Black Coffee", price: 219, desc: "Signature botanical hibiscus & black coffee cooler", image: "images/drink-cold-pink-black-coffee.jpg", popular: false },
+    { id: "d-cold-23", section: "DRINKS", temp: "COLD", category: "Coffee Fusions (Cold)", name: "Special L.I.T. Coffee", price: 299, desc: "B&B house-special layered citrus iced coffee", image: "images/drink-cold-lit-coffee.jpg", popular: false },
+    { id: "d-cold-24", section: "DRINKS", temp: "COLD", category: "Thick Shakes (Cold)", name: "Classic Vanilla Shake", price: 199, desc: "Blended vanilla ice cream with cold milk & vanilla", image: "images/drink-cold-vanilla-shake.jpg", popular: false },
+    { id: "d-cold-25", section: "DRINKS", temp: "COLD", category: "Thick Shakes (Cold)", name: "Classic Chocolate Shake", price: 229, desc: "Rich chocolate ice cream, cocoa syrup & cold milk", image: "images/drink-cold-chocolate-shake.jpg", popular: false },
+    { id: "d-cold-26", section: "DRINKS", temp: "COLD", category: "Thick Shakes (Cold)", name: "Tall Dark Handsome", price: 259, desc: "Decadent chocolate shake spiked with double espresso", image: "images/drink-cold-tall-dark-handsome.jpg", popular: false },
+    { id: "d-cold-27", section: "DRINKS", temp: "COLD", category: "Thick Shakes (Cold)", name: "Mr. Hulk", price: 279, desc: "White chocolate ice cream blended with refreshing green mint", image: "images/drink-cold-mr-hulk.jpg", popular: false },
+    { id: "d-cold-28", section: "DRINKS", temp: "COLD", category: "Thick Shakes (Cold)", name: "KitKat Shake", price: 259, desc: "Crunchy wafer chocolate blended thick shake", image: "images/drink-cold-kitkat-shake.jpg", popular: false },
+    { id: "d-cold-29", section: "DRINKS", temp: "COLD", category: "Thick Shakes (Cold)", name: "Oreo Shake (Frappe)", price: 259, desc: "Crushed Oreo cookies, whipped cream & chocolate drizzle", image: "images/drink-cold-oreo-shake.jpg", popular: true },
+    { id: "d-cold-30", section: "DRINKS", temp: "COLD", category: "Thick Shakes (Cold)", name: "Biscoff Shake", price: 319, desc: "Creamy Lotus Biscoff cookie butter thick shake", image: "images/drink-cold-biscoff-shake.jpg", popular: false },
+    { id: "d-cold-31", section: "DRINKS", temp: "COLD", category: "Thick Shakes (Cold)", name: "Nutty Nutella Shake", price: 319, desc: "Roasted hazelnut Nutella & Belgian chocolate shake", image: "images/drink-cold-nutella-shake.jpg", popular: false },
+    { id: "d-cold-32", section: "DRINKS", temp: "COLD", category: "Thick Shakes (Cold)", name: "Brownie Shake", price: 299, desc: "Fudgy warm chocolate brownie blended milkshake", image: "images/drink-cold-brownie-shake.jpg", popular: false },
+    { id: "d-cold-33", section: "DRINKS", temp: "COLD", category: "Thick Shakes (Cold)", name: "Strawberry Shake", price: 239, desc: "Creamy strawberry compote & vanilla bean shake", image: "images/drink-cold-strawberry-shake.jpg", popular: false },
+    { id: "d-cold-34", section: "DRINKS", temp: "COLD", category: "Thick Shakes (Cold)", name: "Peanut Butter Shake", price: 299, desc: "Roasted creamy peanut butter & chocolate shake", image: "images/drink-cold-peanut-butter-shake.jpg", popular: false },
+    { id: "d-cold-35", section: "DRINKS", temp: "COLD", category: "Smoothies (Cold)", name: "Smooth Monday", price: 329, desc: "Almond milk, raw cocoa, Medjool dates & banana", image: "images/drink-cold-smooth-monday.jpg", popular: false },
+    { id: "d-cold-36", section: "DRINKS", temp: "COLD", category: "Smoothies (Cold)", name: "Coffee Chocolate Smoothie", price: 390, desc: "Chocolate, flaxseeds, almonds, coffee, yogurt & granola", image: "images/drink-cold-coffee-choc-smoothie.jpg", popular: false },
+    { id: "d-cold-37", section: "DRINKS", temp: "COLD", category: "Smoothies (Cold)", name: "Protein Smoothie", price: 349, desc: "Almonds, banana, dates, peanut butter, chia & flax seeds", image: "images/drink-cold-protein-smoothie.jpg", popular: false },
+    { id: "d-cold-38", section: "DRINKS", temp: "COLD", category: "Smoothies (Cold)", name: "Avocado Bliss", price: 379, desc: "Creamy Hass avocado, banana & wild blueberries", image: "images/drink-cold-avocado-bliss.jpg", popular: false },
+    { id: "d-cold-39", section: "DRINKS", temp: "COLD", category: "Smoothies (Cold)", name: "Flat Belly Smoothie", price: 379, desc: "Banana, blueberry & fresh garden mint leaves", image: "images/drink-cold-flat-belly-smoothie.jpg", popular: false },
+    { id: "d-cold-40", section: "DRINKS", temp: "COLD", category: "Mocktails & Beverages (Cold)", name: "Iced Teas", price: 229, desc: "Lemon / Peach / Litchi / Hibiscus / Red Bull / Cascara", image: "images/drink-cold-iced-tea.jpg", popular: false },
+    { id: "d-cold-41", section: "DRINKS", temp: "COLD", category: "Mocktails & Beverages (Cold)", name: "Orange Mojito / Classic Mojitos", price: 229, desc: "Refreshing mix of zesty lime, garden mint & sparkling soda", image: "images/drink-cold-orange-mojito.jpg", popular: true },
+    { id: "d-cold-42", section: "DRINKS", temp: "COLD", category: "Mocktails & Beverages (Cold)", name: "Fresh Lime Soda / Water", price: 139, desc: "Refreshing Sweet / Salt / Mix fresh lime", image: "images/drink-cold-fresh-lime-soda.jpg", popular: false },
+    { id: "d-cold-43", section: "DRINKS", temp: "COLD", category: "Mocktails & Beverages (Cold)", name: "Gunnars", price: 229, desc: "Ginger ale, fresh lemon & aromatic bitters", image: "images/drink-cold-gunnars.jpg", popular: false },
+    { id: "d-cold-44", section: "DRINKS", temp: "COLD", category: "Mocktails & Beverages (Cold)", name: "Spicy Guava", price: 229, desc: "Pink guava juice, lemon, rock salt, masala & tabasco", image: "images/drink-cold-spicy-guava.jpg", popular: false },
+    { id: "d-cold-45", section: "DRINKS", temp: "COLD", category: "Mocktails & Beverages (Cold)", name: "Banana Rama", price: 239, desc: "Pineapple juice, banana, coconut milk & strawberry", image: "images/drink-cold-banana-rama.jpg", popular: false },
+    { id: "d-cold-46", section: "DRINKS", temp: "COLD", category: "Mocktails & Beverages (Cold)", name: "Strawberry Matcha", price: 299, desc: "Layered strawberry crush, chilled milk & Uji matcha", image: "images/drink-cold-strawberry-matcha.jpg", popular: false },
+    { id: "d-cold-47", section: "DRINKS", temp: "COLD", category: "Mocktails & Beverages (Cold)", name: "Diet Coke / Regular Coke", price: 119, desc: "Chilled can served with lemon & ice", image: "images/drink-cold-coke.jpg", popular: false },
+    { id: "d-cold-48", section: "DRINKS", temp: "COLD", category: "Mocktails & Beverages (Cold)", name: "Red Bull", price: 199, desc: "Chilled energy drink", image: "images/drink-cold-red-bull.jpg", popular: false },
+    { id: "d-cold-49", section: "DRINKS", temp: "COLD", category: "Mocktails & Beverages (Cold)", name: "Ginger Ale", price: 149, desc: "Crisp sparkling ginger ale", image: "images/drink-cold-ginger-ale.jpg", popular: false },
+    { id: "d-cold-50", section: "DRINKS", temp: "COLD", category: "Mocktails & Beverages (Cold)", name: "Tonic Water", price: 149, desc: "Chilled botanical tonic water", image: "images/drink-cold-tonic-water.jpg", popular: false },
+    { id: "d-cold-51", section: "DRINKS", temp: "COLD", category: "Mocktails & Beverages (Cold)", name: "Drinking Water", price: 40, desc: "Packaged mineral drinking water", image: "images/drink-cold-water.jpg", popular: false },
+
+    // ---------------- FOOD -> ALL-DAY BREAKFAST ----------------
+    { id: "f-bf-1", section: "FOOD", temp: "FOOD", category: "All-Day Breakfast", name: "Wonder Omelette Meal", price: 329, desc: "Goat cheese, walnuts & spinach omelette with roasted tomatoes & toast", image: "images/food-wonder-omelette.jpg", popular: false },
+    { id: "f-bf-2", section: "FOOD", temp: "FOOD", category: "All-Day Breakfast", name: "Big Breakfast", price: 379, desc: "Choice of eggs, feta, mushrooms, spinach, roasted tomatoes & sourdough", image: "images/food-big-breakfast.jpg", popular: false },
+    { id: "f-bf-3", section: "FOOD", temp: "FOOD", category: "All-Day Breakfast", name: "Lebanese Platter", price: 439, desc: "Hummus, falafel, lavash, babaganoush, veggies, pita, olives & beetroot salad", image: "images/food-lebanese-platter.jpg", popular: true },
+    { id: "f-bf-4", section: "FOOD", temp: "FOOD", category: "All-Day Breakfast", name: "Pesto Scrambled Eggs", price: 319, desc: "Creamy basil pesto scrambled eggs with sourdough toast & house salad", image: "images/food-pesto-scrambled-eggs.jpg", popular: false },
+    { id: "f-bf-5", section: "FOOD", temp: "FOOD", category: "All-Day Breakfast", name: "Smashed Avocado", price: 489, desc: "Smashed Hass avocado, feta cheese, sourdough bread, balsamic & salad", image: "images/food-smashed-avocado.jpg", popular: false },
+    { id: "f-bf-6", section: "FOOD", temp: "FOOD", category: "All-Day Breakfast", name: "Hummus & Veggies", price: 339, desc: "Creamy house hummus with sautéed veggies & rocket leaves", image: "images/food-hummus-veggies.jpg", popular: false },
+    { id: "f-bf-7", section: "FOOD", temp: "FOOD", category: "All-Day Breakfast", name: "Fruit Salad & Granola with Yogurt", price: 389, desc: "Exotic seasonal fruits with crunchy house granola & yogurt", image: "images/food-fruit-granola-yogurt.jpg", popular: false },
+    { id: "f-bf-8", section: "FOOD", temp: "FOOD", category: "All-Day Breakfast", name: "Grilled Chicken Platter", price: 469, desc: "Herb-marinated grilled chicken with sautéed veggies, salad & hummus", image: "images/food-grilled-chicken-platter.jpg", popular: false },
+    { id: "f-bf-9", section: "FOOD", temp: "FOOD", category: "All-Day Breakfast", name: "Egyptian Omelette", price: 319, desc: "Omelette topped with Egyptian dukkah spice blend, cheese, pesto & bread", image: "images/food-egyptian-omelette.jpg", popular: false },
+
+    // ---------------- FOOD -> B&B BRUNCH SPECIALS & BOWLS ----------------
+    { id: "f-br-1", section: "FOOD", temp: "FOOD", category: "B&B Brunch Specials & Bowls", name: "House Special Brunch Meal", price: 439, desc: "Sunny-side up eggs, roasted tomatoes, salad, toast, fries & juice/Americano", image: "images/food-house-special-brunch.jpg", popular: false },
+    { id: "f-br-2", section: "FOOD", temp: "FOOD", category: "B&B Brunch Specials & Bowls", name: "Pancakes Platter", price: 449, desc: "Fluffy pancakes with exotic fruits, honey, 2 chocolates, cranberry cream & ice cream", image: "images/food-pancakes-platter.jpg", popular: false },
+    { id: "f-br-3", section: "FOOD", temp: "FOOD", category: "B&B Brunch Specials & Bowls", name: "Jammy Egg Toast", price: 379, desc: "Crunchy artisanal sourdough toast paired with medium runny eggs", image: "images/food-jammy-egg-toast.jpg", popular: false },
+    { id: "f-br-4", section: "FOOD", temp: "FOOD", category: "B&B Brunch Specials & Bowls", name: "French Toast", price: 359, desc: "Brioche soaked in vanilla cream, served with butter, honey & fresh fruits", image: "images/food-french-toast.jpg", popular: false },
+    { id: "f-br-5", section: "FOOD", temp: "FOOD", category: "B&B Brunch Specials & Bowls", name: "Croissant and Coffee", price: 329, desc: "Freshly baked butter croissant with choice of black coffee", image: "images/food-croissant-and-coffee.jpg", popular: false },
+    { id: "f-br-6", section: "FOOD", temp: "FOOD", category: "B&B Brunch Specials & Bowls", name: "Indian Staple Bowl (Paneer / Chicken)", price: 579, desc: "Malabar paratha & jasmine rice with Paneer Tikka Masala or Chicken Tikka", image: "images/food-indian-staple-bowl.jpg", popular: false },
+    { id: "f-br-7", section: "FOOD", temp: "FOOD", category: "B&B Brunch Specials & Bowls", name: "Buddha Bowl", price: 579, desc: "Kidney beans, chickpeas, sautéed veggies, grilled paneer & pineapple salsa", image: "images/food-buddha-bowl.jpg", popular: false },
+    { id: "f-br-8", section: "FOOD", temp: "FOOD", category: "B&B Brunch Specials & Bowls", name: "Burrito Bowl", price: 579, desc: "Herb rice, kidney beans, nachos, grilled paneer, salsa & guacamole", image: "images/food-burrito-bowl.jpg", popular: false },
+    { id: "f-br-9", section: "FOOD", temp: "FOOD", category: "B&B Brunch Specials & Bowls", name: "Blueberry Banana Smoothie Bowl", price: 390, desc: "Banana, blueberry, yogurt, mint, peanut butter, flax seeds & honey", image: "images/food-blueberry-banana-bowl.jpg", popular: false },
+    { id: "f-br-10", section: "FOOD", temp: "FOOD", category: "B&B Brunch Specials & Bowls", name: "Avocado Banana Smoothie Bowl", price: 390, desc: "Avocado, banana, spinach, nuts, dates, yogurt & honey", image: "images/food-avocado-banana-bowl.jpg", popular: false },
+    { id: "f-br-11", section: "FOOD", temp: "FOOD", category: "B&B Brunch Specials & Bowls", name: "Berry Blast Bowl", price: 390, desc: "Mixed berries, yogurt, honey, granola, banana, apples & chia seeds", image: "images/food-berry-blast-bowl.jpg", popular: true },
+    { id: "f-br-12", section: "FOOD", temp: "FOOD", category: "B&B Brunch Specials & Bowls", name: "Peanut Butter Oatmeal Bowl", price: 390, desc: "Creamy rolled oats, roasted peanut butter, banana & seeds", image: "images/food-peanut-butter-oatmeal.jpg", popular: false },
+
+    // ---------------- FOOD -> SANDWICHES & CROISSANT SANDWICHES ----------------
+    { id: "f-sw-1", section: "FOOD", temp: "FOOD", category: "Sandwiches & Croissants", name: "Mixed Business Sandwich", price: 359, desc: "Roasted veggies, sundried tomato & house tzatziki on sourdough", image: "images/food-mixed-business-sandwich.jpg", popular: false },
+    { id: "f-sw-2", section: "FOOD", temp: "FOOD", category: "Sandwiches & Croissants", name: "Pesto Chicken Sandwich", price: 389, desc: "Basil pesto marinated chicken with sundried tomatoes on sourdough", image: "images/food-pesto-chicken-sandwich.jpg", popular: false },
+    { id: "f-sw-3", section: "FOOD", temp: "FOOD", category: "Sandwiches & Croissants", name: "Pesto Cottage Cheese Sandwich", price: 359, desc: "Grilled cottage cheese, tomatoes & basil pesto on sourdough", image: "images/food-pesto-cottage-cheese-sandwich.jpg", popular: false },
+    { id: "f-sw-4", section: "FOOD", temp: "FOOD", category: "Sandwiches & Croissants", name: "Many Mushrooms Sandwich", price: 389, desc: "Marinated mushrooms with sautéed onions & creamy hummus", image: "images/food-many-mushrooms-sandwich.jpg", popular: false },
+    { id: "f-sw-5", section: "FOOD", temp: "FOOD", category: "Sandwiches & Croissants", name: "Caprese Sandwich", price: 359, desc: "Vine tomato, fresh basil pesto, mozzarella & EVOO", image: "images/food-caprese-sandwich.jpg", popular: false },
+    { id: "f-sw-6", section: "FOOD", temp: "FOOD", category: "Sandwiches & Croissants", name: "Greek Chicken Sandwich", price: 419, desc: "Herb grilled chicken with creamy cucumber tzatziki on sourdough", image: "images/food-greek-chicken-sandwich.jpg", popular: false },
+    { id: "f-sw-7", section: "FOOD", temp: "FOOD", category: "Sandwiches & Croissants", name: "Smoked Chicken Sandwich", price: 419, desc: "Smoked chicken salami with sautéed onions & capsicum", image: "images/food-smoked-chicken-sandwich.jpg", popular: false },
+    { id: "f-sw-8", section: "FOOD", temp: "FOOD", category: "Sandwiches & Croissants", name: "Fresh Spinach & Cottage Cheese Croissant", price: 379, desc: "Flaky butter croissant with cream cheese, spinach & paneer", image: "images/food-croissant-spinach-cheese.jpg", popular: false },
+    { id: "f-sw-9", section: "FOOD", temp: "FOOD", category: "Sandwiches & Croissants", name: "Scrambled Egg & Cherry Tomato Croissant", price: 389, desc: "Fresh lettuce, fluffy scrambled eggs & cherry tomatoes", image: "images/food-croissant-scrambled-egg.jpg", popular: false },
+    { id: "f-sw-10", section: "FOOD", temp: "FOOD", category: "Sandwiches & Croissants", name: "Chicken Salami & Mix Greens Croissant", price: 429, desc: "Chicken salami, crisp lettuce, tomatoes & cheese slice", image: "images/food-croissant-chicken-salami.jpg", popular: false },
+    { id: "f-sw-11", section: "FOOD", temp: "FOOD", category: "Sandwiches & Croissants", name: "Nutella and Banana Croissant", price: 369, desc: "Warm butter croissant filled with thick Nutella & banana", image: "images/food-croissant-nutella-banana.jpg", popular: false },
+    { id: "f-sw-12", section: "FOOD", temp: "FOOD", category: "Sandwiches & Croissants", name: "Tomato Pesto & Feta Croissant", price: 399, desc: "Avocado, tomatoes, cheese, fresh lettuce & feta cheese", image: "images/food-croissant-tomato-pesto.jpg", popular: false },
+    { id: "f-sw-13", section: "FOOD", temp: "FOOD", category: "Sandwiches & Croissants", name: "Matcha Creamy Croissant", price: 399, desc: "Flaky croissant filled with rich Uji Matcha thick cream", image: "images/food-matcha-creamy-croissant.jpg", popular: true },
+
+    // ---------------- FOOD -> EXOTIC OPEN TOAST ----------------
+    { id: "f-ot-1", section: "FOOD", temp: "FOOD", category: "Exotic Open Toast", name: "Pink Hummus Open Toast", price: 359, desc: "Beetroot hummus on sourdough loaded with greens or poached egg", image: "images/food-toast-pink-hummus.jpg", popular: false },
+    { id: "f-ot-2", section: "FOOD", temp: "FOOD", category: "Exotic Open Toast", name: "Mushroom & Sundried Tomato Toast", price: 379, desc: "Creamy mushrooms, parmesan cheese & sundried tomatoes", image: "images/food-toast-mushroom-sundried.jpg", popular: false },
+    { id: "f-ot-3", section: "FOOD", temp: "FOOD", category: "Exotic Open Toast", name: "Spinach & Egg Open Toast", price: 369, desc: "Basil pesto topped with creamy mixture of spinach & egg", image: "images/food-toast-spinach-egg.jpg", popular: false },
+    { id: "f-ot-4", section: "FOOD", temp: "FOOD", category: "Exotic Open Toast", name: "Cream Cheese & Avocado Toast", price: 419, desc: "Whipped cream cheese, sliced Hass avocado & toasted sesame", image: "images/food-toast-cream-cheese-avocado.jpg", popular: false },
+    { id: "f-ot-5", section: "FOOD", temp: "FOOD", category: "Exotic Open Toast", name: "Spicy Mushroom & Hummus Toast", price: 369, desc: "Herb-spiced mushrooms over house hummus on sourdough", image: "images/food-toast-spicy-mushroom.jpg", popular: false },
+    { id: "f-ot-6", section: "FOOD", temp: "FOOD", category: "Exotic Open Toast", name: "Classic Crunch Toast", price: 299, desc: "Choice of Nutella, Biscoff, Jam, or Butter with caramelized banana", image: "images/food-toast-classic.jpg", popular: false },
+
+    // ---------------- FOOD -> PASTAS ----------------
+    { id: "f-pa-1", section: "FOOD", temp: "FOOD", category: "Artisanal Pastas", name: "Spaghetti Marinara", price: 359, desc: "Homemade tomato sauce, roasted garlic, basil, oregano & garlic bread", image: "images/food-pasta-spaghetti-marinara.jpg", popular: false },
+    { id: "f-pa-2", section: "FOOD", temp: "FOOD", category: "Artisanal Pastas", name: "Penne Pesto", price: 389, desc: "Penne tossed in fresh basil pesto & parmesan with bread", image: "images/food-pasta-penne-pesto.jpg", popular: false },
+    { id: "f-pa-3", section: "FOOD", temp: "FOOD", category: "Artisanal Pastas", name: "Creamy Penne (Alfredo)", price: 379, desc: "Penne in rich white cheese sauce, olives, herbs & toasted bread", image: "images/food-pasta-creamy-penne.jpg", popular: true },
+    { id: "f-pa-4", section: "FOOD", temp: "FOOD", category: "Artisanal Pastas", name: "Arrabbiata", price: 379, desc: "Penne in spicy red chili-tomato sauce with garlic bread & EVOO", image: "images/food-pasta-arrabbiata.jpg", popular: false },
+    { id: "f-pa-5", section: "FOOD", temp: "FOOD", category: "Artisanal Pastas", name: "Rosa Parma Sauce", price: 389, desc: "Penne in rich pink tomato-cream sauce with garlic bread", image: "images/food-pasta-rosa-parma.jpg", popular: false },
+    { id: "f-pa-6", section: "FOOD", temp: "FOOD", category: "Artisanal Pastas", name: "Aglio E Olio", price: 339, desc: "Spaghetti tossed with golden garlic, chili flakes & olive oil", image: "images/food-pasta-aglio-e-olio.jpg", popular: false },
+    { id: "f-pa-7", section: "FOOD", temp: "FOOD", category: "Artisanal Pastas", name: "Baked Lasagne", price: 429, desc: "Layered pasta sheets baked with vegetables, cheese & herbs", image: "images/food-pasta-baked-lasagne.jpg", popular: false },
+
+    // ---------------- FOOD -> BURGERS, WRAPS & PIZZA ----------------
+    { id: "f-bg-1", section: "FOOD", temp: "FOOD", category: "Burgers, Wraps & Pizza", name: "Classic Farm Burger", price: 319, desc: "Crispy mixed veggie patty, onion, tomato, cheese & chili sauce", image: "images/food-burger-classic-farm.jpg", popular: false },
+    { id: "f-bg-2", section: "FOOD", temp: "FOOD", category: "Burgers, Wraps & Pizza", name: "Crispy Paneer Tikki Burger", price: 339, desc: "Spiced paneer tikki patty, lettuce, tomato & mint mayo", image: "images/food-burger-crispy-paneer.jpg", popular: false },
+    { id: "f-bg-3", section: "FOOD", temp: "FOOD", category: "Burgers, Wraps & Pizza", name: "Aloo Tikki Burger", price: 359, desc: "Golden herb potato patty with crunchy veggies & house sauce", image: "images/food-burger-aloo-tikki.jpg", popular: false },
+    { id: "f-bg-4", section: "FOOD", temp: "FOOD", category: "Burgers, Wraps & Pizza", name: "Classic Grilled Chicken Burger", price: 389, desc: "Juicy grilled chicken patty in spicy chili sauce & cheese", image: "images/food-burger-grilled-chicken.jpg", popular: false },
+    { id: "f-bg-5", section: "FOOD", temp: "FOOD", category: "Burgers, Wraps & Pizza", name: "Chicken & Egg Hangover Burger", price: 399, desc: "Seasoned chicken patty, cheese slice & sunny-side up egg", image: "images/food-burger-hangover.jpg", popular: false },
+    { id: "f-bg-6", section: "FOOD", temp: "FOOD", category: "Burgers, Wraps & Pizza", name: "Crispy Paneer Wrap", price: 349, desc: "Golden crispy paneer strips, crunchy slaw & mint-chipotle sauce", image: "images/food-crispy-paneer-wrap.jpg", popular: false },
+    { id: "f-bg-7", section: "FOOD", temp: "FOOD", category: "Burgers, Wraps & Pizza", name: "Vada Pav Slider", price: 279, desc: "B&B gourmet spiced batata vada sliders with dry garlic chutney", image: "images/food-vada-pav-slider.jpg", popular: false },
+    { id: "f-bg-8", section: "FOOD", temp: "FOOD", category: "Burgers, Wraps & Pizza", name: "Barbeque Chicken Pizza", price: 479, desc: "Smoky BBQ glazed chicken, mozzarella, bell peppers & caramelized onions", image: "images/food-bbq-chicken-pizza.jpg", popular: true },
+
+    // ---------------- FOOD -> SALADS, SOUPS & DIPS ----------------
+    { id: "f-ss-1", section: "FOOD", temp: "FOOD", category: "Salads, Soups & Dips", name: "Caesar Salad", price: 319, desc: "Crisp iceberg lettuce, parmesan shavings, croutons & Caesar dressing", image: "images/food-salad-caesar.jpg", popular: false },
+    { id: "f-ss-2", section: "FOOD", temp: "FOOD", category: "Salads, Soups & Dips", name: "Greek Salad", price: 329, desc: "Bell peppers, cucumber, olives, tomato, feta & herb vinaigrette", image: "images/food-salad-greek.jpg", popular: false },
+    { id: "f-ss-3", section: "FOOD", temp: "FOOD", category: "Salads, Soups & Dips", name: "Watermelon & Feta Cheese Salad", price: 329, desc: "Chilled watermelon cubes, fresh mint, lime & crumbled feta", image: "images/food-salad-watermelon-feta.jpg", popular: false },
+    { id: "f-ss-4", section: "FOOD", temp: "FOOD", category: "Salads, Soups & Dips", name: "Protein Salad", price: 399, desc: "Avocado, almonds, peanuts, pumpkin seeds & choice of paneer/eggs", image: "images/food-salad-protein.jpg", popular: false },
+    { id: "f-ss-5", section: "FOOD", temp: "FOOD", category: "Salads, Soups & Dips", name: "Sesame Chicken Salad", price: 399, desc: "Grilled chicken, toasted sesame & greens in lemon-honey dressing", image: "images/food-salad-sesame-chicken.jpg", popular: false },
+    { id: "f-ss-6", section: "FOOD", temp: "FOOD", category: "Salads, Soups & Dips", name: "Falafel Hummus Salad", price: 359, desc: "Crispy falafel, hummus, olives, cherry tomatoes & lime vinaigrette", image: "images/food-salad-falafel-hummus.jpg", popular: false },
+    { id: "f-ss-7", section: "FOOD", temp: "FOOD", category: "Salads, Soups & Dips", name: "Zuppa Di Pomodoro", price: 269, desc: "Roasted plum tomato soup garnished with fresh basil & EVOO", image: "images/food-soup-pomodoro.jpg", popular: false },
+    { id: "f-ss-8", section: "FOOD", temp: "FOOD", category: "Salads, Soups & Dips", name: "Classic Chicken Soup", price: 339, desc: "Velvety slow-simmered chicken & celery broth", image: "images/food-soup-classic-chicken.jpg", popular: false },
+    { id: "f-ss-9", section: "FOOD", temp: "FOOD", category: "Salads, Soups & Dips", name: "Cream of Mushroom Soup", price: 299, desc: "Earthy wild mushroom blend finished with parmesan", image: "images/food-soup-cream-mushroom.jpg", popular: false },
+    { id: "f-ss-10", section: "FOOD", temp: "FOOD", category: "Salads, Soups & Dips", name: "Almond Broccoli Soup", price: 329, desc: "Nutritious creamy broccoli broth topped with toasted almonds", image: "images/food-soup-almond-broccoli.jpg", popular: false },
+    { id: "f-ss-11", section: "FOOD", temp: "FOOD", category: "Salads, Soups & Dips", name: "Herb Lemon Chicken Soup", price: 329, desc: "Zesty clear chicken broth infused with garden herbs & carrots", image: "images/food-soup-herb-lemon-chicken.jpg", popular: false },
+    { id: "f-ss-12", section: "FOOD", temp: "FOOD", category: "Salads, Soups & Dips", name: "Portion of Pesto Dip", price: 79, desc: "House-blended fresh basil, pine nut & parmesan dip", image: "images/food-addon-pesto-dip.jpg", popular: false },
+    { id: "f-ss-13", section: "FOOD", temp: "FOOD", category: "Salads, Soups & Dips", name: "Portion of Hummus", price: 79, desc: "Creamy tahini & chickpea hummus drizzled with EVOO", image: "images/food-addon-hummus.jpg", popular: false }
+];
+
+// App State
+let cart = [];
+let activePrimarySection = "ALL";
+let activeSubCategory = "ALL";
+let favActiveIndex = 2; // Start with middle popular dish in spotlight
+
+// =========================================================================
+// INITIALIZATION
+// =========================================================================
+document.addEventListener("DOMContentLoaded", () => {
+    lucide.createIcons();
+    if (window.location.hash === "#menu") {
+        switchPageView("menu");
+    }
+    initFavoritesCarousel();
+    renderSubcategoryPills();
+    renderFullMenuPage();
+    setDefaultReservationDates();
+});
+
+// Switch Between Landing Cover Page (#home-view) and Separate Menu Page (#menu-view)
+function switchPageView(viewName) {
+    const homeView = document.getElementById("home-view");
+    const menuView = document.getElementById("menu-view");
+    const navHome = document.getElementById("nav-btn-home");
+    const navMenu = document.getElementById("nav-btn-menu");
+    if (viewName === "menu") {
+        homeView.classList.add("hidden");
+        menuView.classList.remove("hidden");
+        navHome.classList.remove("text-mustard-400");
+        navMenu.classList.add("text-mustard-400");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+        menuView.classList.add("hidden");
+        homeView.classList.remove("hidden");
+        navMenu.classList.remove("text-mustard-400");
+        navHome.classList.add("text-mustard-400");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+}
+
+// =========================================================================
+// 3D PERSPECTIVE CUSTOMER FAVORITES CAROUSEL (REFERENCE SCREENSHOT FEATURE)
+// =========================================================================
+function getFavoriteItems() {
+    return bbMenuItems.filter(i => i.popular);
+}
+
+function initFavoritesCarousel() {
+    const stage = document.getElementById("favorites-carousel-stage");
+    const favorites = getFavoriteItems();
+    if (!stage || favorites.length === 0) return;
+
+    stage.innerHTML = favorites.map((item, idx) => `
+        <div class="fav-slide" data-index="${idx}" onclick="handleFavoriteSlideClick(${idx})">
+            <div class="fav-slide-img-wrap">
+                <img
+                    src="${item.image}"
+                    onerror="this.onerror=null;this.src=createFallbackSvg('${item.name}', '${item.image}', '#20513D', '#F4C430');"
+                    alt="${item.name}"
+                    class="w-full h-full object-cover"
+                >
+            </div>
+            <div class="fav-slide-meta">
+                <span class="block text-xs font-semibold text-roast-600 tracking-wide">${item.category}</span>
+                <h3 class="font-display font-extrabold text-lg sm:text-xl text-roast-950 mt-0.5 leading-snug">
+                    ${item.name}
+                </h3>
+                <p class="text-xs text-roast-600 italic mt-1 line-clamp-2 leading-relaxed">
+                    ${item.desc}
+                </p>
+                <div class="fav-add-wrap mt-3 transition-opacity duration-300">
+                    <button
+                        onclick="event.stopPropagation(); addToCart('${item.id}');"
+                        class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emeraldCafe-800 hover:bg-mustard-400 text-white hover:text-emeraldCafe-950 text-[11px] font-extrabold tracking-wide shadow-xs transition-colors cursor-pointer"
+                    >
+                        + Add to Order • ₹${item.price}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join("");
+
+    updateFavoritesCarouselPositions();
+}
+
+function updateFavoritesCarouselPositions() {
+    const slides = document.querySelectorAll("#favorites-carousel-stage .fav-slide");
+    const total = slides.length;
+    if (total === 0) return;
+
+    slides.forEach((slide, idx) => {
+        let diff = idx - favActiveIndex;
+        // Wrap circularly for seamless infinite rotation
+        if (diff > Math.floor(total / 2)) diff -= total;
+        if (diff < -Math.floor(total / 2)) diff += total;
+
+        const addWrap = slide.querySelector(".fav-add-wrap");
+
+        if (diff === 0) {
+            slide.setAttribute("data-offset", "0");
+            if (addWrap) addWrap.style.opacity = "1";
+        } else if (diff === -1) {
+            slide.setAttribute("data-offset", "-1");
+            if (addWrap) addWrap.style.opacity = "0";
+        } else if (diff === 1) {
+            slide.setAttribute("data-offset", "1");
+            if (addWrap) addWrap.style.opacity = "0";
+        } else if (diff === -2) {
+            slide.setAttribute("data-offset", "-2");
+            if (addWrap) addWrap.style.opacity = "0";
+        } else if (diff === 2) {
+            slide.setAttribute("data-offset", "2");
+            if (addWrap) addWrap.style.opacity = "0";
+        } else if (diff < -2) {
+            slide.setAttribute("data-offset", "hidden-left");
+            if (addWrap) addWrap.style.opacity = "0";
+        } else {
+            slide.setAttribute("data-offset", "hidden-right");
+            if (addWrap) addWrap.style.opacity = "0";
+        }
+    });
+}
+
+function stepFavoritesCarousel(delta) {
+    const total = getFavoriteItems().length;
+    if (total === 0) return;
+    favActiveIndex = (favActiveIndex + delta + total) % total;
+    updateFavoritesCarouselPositions();
+}
+
+function handleFavoriteSlideClick(idx) {
+    if (idx !== favActiveIndex) {
+        favActiveIndex = idx;
+        updateFavoritesCarouselPositions();
+    }
+}
+
+// =========================================================================
+// SEPARATE MENU PAGE: DRINKS (HOT & COLD) & FOOD RENDERING
+// =========================================================================
+function filterPrimarySection(sec) {
+    activePrimarySection = sec;
+    activeSubCategory = "ALL";
+    document.querySelectorAll(".sec-btn").forEach(btn => {
+        btn.classList.remove("bg-emeraldCafe-800", "text-white", "shadow-xs");
+        btn.classList.add("bg-cream-200", "text-roast-900");
+    });
+    const activeBtn = document.getElementById(`sec-btn-${sec}`);
+    if (activeBtn) {
+        activeBtn.classList.remove("bg-cream-200", "text-roast-900");
+        activeBtn.classList.add("bg-emeraldCafe-800", "text-white", "shadow-xs");
+    }
+    renderSubcategoryPills();
+    renderFullMenuPage();
+}
+
+function renderSubcategoryPills() {
+    const bar = document.getElementById("subcategory-pills-bar");
+    let filtered = bbMenuItems;
+    if (activePrimarySection === "DRINKS") filtered = bbMenuItems.filter(i => i.section === "DRINKS");
+    if (activePrimarySection === "HOT_DRINKS") filtered = bbMenuItems.filter(i => i.temp === "HOT");
+    if (activePrimarySection === "COLD_DRINKS") filtered = bbMenuItems.filter(i => i.temp === "COLD");
+    if (activePrimarySection === "FOOD") filtered = bbMenuItems.filter(i => i.section === "FOOD");
+    const categories = ["ALL", ...new Set(filtered.map(i => i.category))];
+    bar.innerHTML = categories.map(cat => {
+        const isSelected = activeSubCategory === cat;
+        const cls = isSelected
+            ? "bg-emeraldCafe-950 text-mustard-400 border-emeraldCafe-950"
+            : "bg-white text-roast-800 border-cream-300 hover:border-emeraldCafe-800";
+        return `
+            <button onclick="selectSubCategory('${cat.replace(/'/g, "\\'")}')" class="px-3.5 py-1.5 rounded-full border text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${cls}">
+                ${cat === "ALL" ? "All Categories" : cat}
+            </button>
+        `;
+    }).join("");
+}
+
+function selectSubCategory(cat) {
+    activeSubCategory = cat;
+    renderSubcategoryPills();
+    renderFullMenuPage();
+}
+
+function renderFullMenuPage() {
+    const wrapper = document.getElementById("menu-sections-wrapper");
+    const query = (document.getElementById("menu-search-input")?.value || "").toLowerCase().trim();
+    const matchItem = (item) => {
+        if (activeSubCategory !== "ALL" && item.category !== activeSubCategory) return false;
+        if (query && !item.name.toLowerCase().includes(query) && !item.desc.toLowerCase().includes(query) && !item.category.toLowerCase().includes(query)) {
+            return false;
+        }
+        return true;
+    };
+    const hotDrinks = bbMenuItems.filter(i => i.temp === "HOT" && matchItem(i));
+    const coldDrinks = bbMenuItems.filter(i => i.temp === "COLD" && matchItem(i));
+    const foodItems = bbMenuItems.filter(i => i.section === "FOOD" && matchItem(i));
+    let html = "";
+
+    if ((activePrimarySection === "ALL" || activePrimarySection === "DRINKS" || activePrimarySection === "HOT_DRINKS") && hotDrinks.length > 0) {
+        html += buildMenuDivisionBlock(
+            "HOT DRINKS",
+            "Specialty Espresso, White & Black Coffee, Manual Pour-Overs & Artisanal Teas",
+            "☕",
+            hotDrinks
+        );
+    }
+    if ((activePrimarySection === "ALL" || activePrimarySection === "DRINKS" || activePrimarySection === "COLD_DRINKS") && coldDrinks.length > 0) {
+        html += buildMenuDivisionBlock(
+            "COLD DRINKS",
+            "24–30 Hr Cold Brews, Coffee Fusions, Thick Shakes, Smoothies & Refreshing Mocktails",
+            "🧊",
+            coldDrinks
+        );
+    }
+    if ((activePrimarySection === "ALL" || activePrimarySection === "FOOD") && foodItems.length > 0) {
+        html += buildMenuDivisionBlock(
+            "FOOD & ALL-DAY BRUNCH",
+            "All-Day Breakfast, Lebanese Platters, Croissant Sandwiches, Open Toasts, Pastas, Burgers & Salads",
+            "🍽️",
+            foodItems
+        );
+    }
+    if (!html) {
+        html = `
+            <div class="text-center py-16 bg-cream-50 rounded-3xl border border-cream-300">
+                <p class="font-serif text-2xl font-bold text-roast-950">No matching dishes or drinks found</p>
+                <p class="text-xs text-roast-600 mt-1">Try clearing your search or switching category filters.</p>
+            </div>
+        `;
+    }
+    wrapper.innerHTML = html;
+    lucide.createIcons();
+}
+
+function buildMenuDivisionBlock(title, subtitle, emoji, items) {
+    const grouped = {};
+    items.forEach(item => {
+        if (!grouped[item.category]) grouped[item.category] = [];
+        grouped[item.category].push(item);
+    });
+    const categoriesHtml = Object.entries(grouped).map(([catName, catItems]) => `
+        <div class="space-y-4">
+            <div class="flex items-center justify-between border-b-2 border-emeraldCafe-800/20 pb-2">
+                <h3 class="font-serif text-2xl font-bold text-emeraldCafe-950">${catName}</h3>
+                <span class="text-xs font-bold text-roast-600">${catItems.length} items</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                ${catItems.map(item => `
+                    <article class="rounded-2xl bg-cream-50 border border-cream-300 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="relative h-40 bg-emeraldCafe-950 overflow-hidden">
+                                <img
+                                    src="${item.image}"
+                                    onerror="this.onerror=null; this.src=createFallbackSvg('${item.name}','${item.image}', '${item.temp === 'HOT' ? '#352720' : item.temp === 'COLD' ? '#163B2C' : '#20513D'}', '#F4C430');"
+                                    alt="${item.name}"
+                                    class="w-full h-full object-cover"
+                                >
+                                <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${item.temp === 'HOT' ? 'bg-amber-500 text-roast-950' : item.temp === 'COLD' ? 'bg-sky-400 text-roast-950' : 'bg-mustard-400 text-emeraldCafe-950'}">
+                                    ${item.temp}
+                                </span>
+                                <span class="absolute bottom-2.5 right-2.5 px-3 py-1 rounded-full bg-emeraldCafe-950/90 text-white text-xs font-extrabold">
+                                    ₹${item.price}
+                                </span>
+                            </div>
+                            <div class="p-4">
+                                <h4 class="font-serif text-lg font-bold text-roast-950 leading-snug">${item.name}</h4>
+                                <p class="text-xs text-roast-600 mt-1 leading-relaxed">${item.desc}</p>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4">
+                            <button onclick="addToCart('${item.id}')" class="w-full py-2.5 rounded-xl bg-emeraldCafe-800 hover:bg-mustard-400 text-white hover:text-emeraldCafe-950 font-extrabold text-xs tracking-wide transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                Add to Cart • ₹${item.price}
+                            </button>
+                        </div>
+                    </article>
+                `).join("")}
+            </div>
+        </div>
+    `).join("");
+
+    return `
+        <div class="space-y-8">
+            <div class="p-6 rounded-3xl bg-emeraldCafe-900 text-white flex items-center gap-4 shadow-md">
+                <span class="text-3xl">${emoji}</span>
+                <div>
+                    <h2 class="font-display font-black text-2xl sm:text-3xl uppercase tracking-tight text-mustard-400">${title}</h2>
+                    <p class="text-xs sm:text-sm text-white/80 mt-0.5">${subtitle}</p>
+                </div>
+            </div>
+            ${categoriesHtml}
+        </div>
+    `;
+}
+
+// =========================================================================
+// CART ENGINE & WHATSAPP ORDER DISPATCH
+// =========================================================================
+function addToCart(itemId) {
+    const product = bbMenuItems.find(i => i.id === itemId);
+    if (!product) return;
+    const existing = cart.find(c => c.id === itemId);
+    if (existing) {
+        existing.qty += 1;
+    } else {
+        cart.push({ ...product, qty: 1 });
+    }
+    updateCartBadgesAndDrawer();
+    showToast(`Added "${product.name}" (₹${product.price}) to cart`);
+}
+
+function updateCartItemQty(itemId, delta) {
+    const item = cart.find(c => c.id === itemId);
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0) {
+        cart = cart.filter(c => c.id !== itemId);
+    }
+    updateCartBadgesAndDrawer();
+}
+
+function updateCartBadgesAndDrawer() {
+    const count = cart.reduce((sum, i) => sum + i.qty, 0);
+    const subtotal = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+    const gst = Math.round(subtotal * 0.05);
+    const grandTotal = subtotal + gst;
+    const headerBadge = document.getElementById("header-cart-count");
+    const menuBarBadge = document.getElementById("menu-bar-cart-count");
+    if (count > 0) {
+        headerBadge.textContent = count;
+        headerBadge.classList.remove("hidden");
+    } else {
+        headerBadge.classList.add("hidden");
+    }
+    if (menuBarBadge) menuBarBadge.textContent = count;
+    document.getElementById("cart-subtotal-val").textContent = `₹${subtotal}`;
+    document.getElementById("cart-gst-val").textContent = `₹${gst}`;
+    document.getElementById("cart-grand-total-val").textContent = `₹${grandTotal}`;
+    const listEl = document.getElementById("cart-items-list");
+    if (cart.length === 0) {
+        listEl.innerHTML = `
+            <div class="text-center py-14 text-roast-600">
+                <i data-lucide="shopping-bag" class="w-10 h-10 mx-auto text-emeraldCafe-800/50 mb-2"></i>
+                <p class="font-serif text-lg font-bold text-roast-950">Your B&amp;B cart is empty</p>
+                <p class="text-xs mt-1">Add Hot Drinks, Cold Brews, or Brunch dishes to order.</p>
+            </div>
+        `;
+    } else {
+        listEl.innerHTML = cart.map(item => `
+            <div class="flex items-center justify-between gap-3 p-3 rounded-2xl bg-white border border-cream-300">
+                <div>
+                    <span class="text-[10px] font-bold uppercase text-emeraldCafe-800">${item.temp}</span>
+                    <h4 class="text-sm font-bold text-roast-950">${item.name}</h4>
+                    <p class="text-xs font-extrabold text-roast-600">₹${item.price} × ${item.qty} = ₹${item.price * item.qty}</p>
+                </div>
+                <div class="flex items-center gap-2 bg-cream-200 rounded-full px-2 py-1">
+                    <button onclick="updateCartItemQty('${item.id}', -1)" class="w-6 h-6 rounded-full bg-white font-bold text-xs cursor-pointer">-</button>
+                    <span class="text-xs font-extrabold w-4 text-center">${item.qty}</span>
+                    <button onclick="updateCartItemQty('${item.id}', 1)" class="w-6 h-6 rounded-full bg-white font-bold text-xs cursor-pointer">+</button>
+                </div>
+            </div>
+        `).join("");
+    }
+    lucide.createIcons();
+}
+
+function openCartDrawer() {
+    updateCartBadgesAndDrawer();
+    const drawer = document.getElementById("cart-drawer");
+    drawer.classList.remove("hidden");
+    drawer.classList.add("flex");
+}
+
+function closeCartDrawer() {
+    const drawer = document.getElementById("cart-drawer");
+    drawer.classList.add("hidden");
+    drawer.classList.remove("flex");
+}
+
+function sendOrderToWhatsApp() {
+    if (cart.length === 0) {
+        showToast("Please add at least one item to your cart first!");
+        return;
+    }
+    const customerName = document.getElementById("cart-customer-name").value.trim();
+    if (!customerName) {
+        showToast("Please enter your name before placing the order!");
+        document.getElementById("cart-customer-name").focus();
+        return;
+    }
+    const note = document.getElementById("cart-customer-note").value.trim();
+    const subtotal = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+    const gst = Math.round(subtotal * 0.05);
+    const grandTotal = subtotal + gst;
+    const itemLines = cart.map((item, idx) =>
+        `${idx + 1}. ${item.name} (${item.temp}) x${item.qty} — ₹${item.price * item.qty}`
+    ).join("\n");
+    let message = `☕ *NEW ORDER — B&B - BREW AND BRUNCH (JAIPUR)*\n`;
+    message += `👤 *Customer Name:* ${customerName}\n`;
+    message += `📍 *Order Type:* Online / Dine-In / Takeaway\n`;
+    message += `----------------------------------\n`;
+    message += `${itemLines}\n`;
+    message += `----------------------------------\n`;
+    message += `Subtotal: ₹${subtotal}\n`;
+    message += `GST (5%): ₹${gst}\n`;
+    message += `*Grand Total: ₹${grandTotal}*\n`;
+    if (note) {
+        message += `📝 *Notes:* ${note}\n`;
+    }
+    message += `\nPlease confirm my order. Thank you!`;
+    const whatsappUrl = `https://wa.me/${BB_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank");
+}
+
+// =========================================================================
+// RESERVATIONS, SHARE & UTILITIES
+// =========================================================================
+function submitTableReservation(e) {
+    e.preventDefault();
+    const name = document.getElementById("res-name").value;
+    const phone = document.getElementById("res-phone").value;
+    const date = document.getElementById("res-date").value;
+    const time = document.getElementById("res-time").value;
+    const guests = document.getElementById("res-guests").value;
+    const msg = `🍽️ *TABLE RESERVATION — B&B - BREW AND BRUNCH (JAIPUR)*\nName: ${name}\nPhone: ${phone}\nDate: ${date}\nTime: ${time}\nGuests: ${guests}\nLocation: O-12, Ashok Marg, C Scheme, Jaipur`;
+    window.open(`https://wa.me/${BB_WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
+}
+
+function submitModalReservation(e) {
+    e.preventDefault();
+    const name = document.getElementById("m-res-name").value;
+    const phone = document.getElementById("m-res-phone").value;
+    const date = document.getElementById("m-res-date").value;
+    const time = document.getElementById("m-res-time").value;
+    const guests = document.getElementById("m-res-guests").value;
+    const msg = `🍽️ *TABLE RESERVATION — B&B - BREW AND BRUNCH (JAIPUR)*\nName: ${name}\nPhone: ${phone}\nDate: ${date}\nTime: ${time}\nGuests: ${guests}`;
+    closeReserveModal();
+    window.open(`https://wa.me/${BB_WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
+}
+
+function openReserveModal() {
+    const modal = document.getElementById("reserve-modal");
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+}
+
+function closeReserveModal() {
+    const modal = document.getElementById("reserve-modal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+}
+
+function toggleMobileNav() {
+    document.getElementById("mobile-nav-drawer").classList.toggle("hidden");
+}
+
+function setDefaultReservationDates() {
+    const today = new Date().toISOString().split("T")[0];
+    const d1 = document.getElementById("res-date");
+    const d2 = document.getElementById("m-res-date");
+    if (d1) d1.value = today;
+    if (d2) d2.value = today;
+}
+
+function shareCafeLink() {
+    const url = window.location.href;
+    const tempInput = document.createElement("input");
+    tempInput.value = url;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempInput);
+    showToast("B&B - Brew and Brunch link copied to clipboard!");
+}
+
+function showToast(text) {
+    const box = document.getElementById("toast-box");
+    document.getElementById("toast-msg").textContent = text;
+    box.classList.remove("translate-y-24", "opacity-0");
+    setTimeout(() => {
+        box.classList.add("translate-y-24", "opacity-0");
+    }, 3000);
+}
+</script>
+</body>
+</html>
